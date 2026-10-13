@@ -1,0 +1,2448 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>AI Mission Terminal: Cyber Laboratory 🇵🇭</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Quicksand:wght@600;700;800&family=Press+Start+2P&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --reading-font-size: 100%;
+    }
+    html {
+      font-size: var(--reading-font-size, 100%);
+      -webkit-text-size-adjust: 100%;
+    }
+    body {
+      font-family: 'Quicksand', system-ui, -apple-system, sans-serif;
+      user-select: none;
+      -webkit-user-select: none;
+      -webkit-touch-callout: none;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+      background-color: #030712;
+    }
+    h1, h2, h3, h4, .font-heading {
+      font-family: 'Fredoka', 'Quicksand', sans-serif;
+    }
+    .font-arcade {
+      font-family: 'Press Start 2P', monospace, sans-serif;
+    }
+    .font-tech {
+      font-family: 'Share Tech Mono', monospace, sans-serif;
+    }
+
+    .cyber-grid-bg {
+      background: 
+        linear-gradient(to bottom, rgba(3, 7, 18, 0.9) 0%, rgba(15, 23, 42, 0.96) 100%),
+        radial-gradient(circle at 50% 20%, rgba(14, 165, 233, 0.12) 0%, transparent 60%),
+        linear-gradient(rgba(56, 189, 248, 0.08) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(56, 189, 248, 0.08) 1px, transparent 1px);
+      background-size: 100% 100%, 100% 100%, 36px 36px, 36px 36px;
+    }
+
+    .cyber-terminal {
+      background: rgba(15, 23, 42, 0.88);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(56, 189, 248, 0.35);
+      box-shadow: 0 0 30px rgba(14, 165, 233, 0.12), inset 0 0 20px rgba(15, 23, 42, 0.8);
+    }
+
+    .cyber-btn {
+      position: relative;
+      border: 1px solid rgba(56, 189, 248, 0.4);
+      background: linear-gradient(180deg, rgba(30, 41, 59, 0.9) 0%, rgba(15, 23, 42, 0.95) 100%);
+      border-bottom: 4px solid #0284c7;
+      transition: all 0.12s ease;
+      touch-action: manipulation;
+    }
+    .cyber-btn:hover:not(:disabled) {
+      transform: translateY(-2px);
+      border-color: #38bdf8;
+      box-shadow: 0 0 14px rgba(56, 189, 248, 0.25);
+    }
+    .cyber-btn:active:not(:disabled) {
+      transform: translateY(2px);
+      border-bottom-width: 1px;
+    }
+
+    .diff-btn {
+      transition: all 0.15s ease;
+      border: 1px solid rgba(56, 189, 248, 0.3);
+    }
+    .diff-btn.selected {
+      border-color: #38bdf8;
+      background: rgba(14, 165, 233, 0.25);
+      box-shadow: 0 0 12px rgba(56, 189, 248, 0.3);
+      color: #38bdf8;
+    }
+
+    .buddy-option, .btn-play-island, .opt-mc-btn {
+      transition: all 0.16s ease;
+      touch-action: manipulation;
+    }
+    .buddy-option.selected {
+      border-color: #38bdf8 !important;
+      background: rgba(14, 165, 233, 0.16) !important;
+      box-shadow: 0 0 18px rgba(56, 189, 248, 0.25);
+      transform: scale(1.02);
+    }
+
+    #game-canvas {
+      touch-action: none;
+      background: radial-gradient(circle at center, #0c1a30 0%, #030712 100%);
+      border-radius: 1rem;
+      box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.9), 0 0 20px rgba(56, 189, 248, 0.15);
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    .scanline-overlay {
+      position: absolute;
+      top: 0; left: 0; right: 0; height: 14px;
+      background: linear-gradient(to bottom, rgba(56, 189, 248, 0), rgba(56, 189, 248, 0.25), rgba(56, 189, 248, 0));
+      animation: scanline 4s linear infinite;
+      pointer-events: none;
+    }
+
+    @keyframes scanline {
+      0% { transform: translateY(-100%); }
+      100% { transform: translateY(1400%); }
+    }
+    @keyframes pulseGlow {
+      0%, 100% { opacity: 0.6; }
+      50% { opacity: 1; }
+    }
+    .glow-radar { animation: pulseGlow 2.5s ease-in-out infinite; }
+
+    *, *::before, *::after { box-sizing: border-box; }
+    main {
+      width: 100%; min-width: 0;
+      padding: clamp(14px, 2.5vw, 30px) !important;
+      border-radius: clamp(16px, 3vw, 28px) !important;
+      min-height: calc(100vh - 20px);
+      min-height: calc(100dvh - 20px);
+    }
+  </style>
+</head>
+
+<body class="cyber-grid-bg min-h-screen flex flex-col items-center justify-center p-2 sm:p-4 text-slate-100 relative overflow-x-hidden">
+
+  <!-- CELEBRATION CANVAS -->
+  <canvas id="fireworks-canvas" class="fixed inset-0 pointer-events-none z-50 hidden"></canvas>
+
+  <!-- AMBIENT GLOW -->
+  <div class="fixed top-0 left-1/4 w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none"></div>
+  <div class="fixed bottom-0 right-1/4 w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
+  <!-- MAIN TERMINAL CHASSIS -->
+  <main class="w-full max-w-5xl cyber-terminal rounded-3xl relative z-10 my-auto flex flex-col gap-3 sm:gap-4 justify-between border border-cyan-500/40">
+
+    <!-- TOP TELEMETRY HUD -->
+    <header class="flex items-center justify-between border-b border-cyan-500/30 pb-2.5 flex-wrap gap-2">
+      <div class="flex items-center gap-2.5 sm:gap-3">
+        <button id="btn-header-home" class="w-11 h-11 sm:w-12 sm:h-12 rounded-xl bg-slate-900 border border-cyan-400/50 text-cyan-300 flex items-center justify-center text-xl shadow cyber-btn" title="Mission Hub">
+          🛸
+        </button>
+        <div>
+          <div class="flex items-center gap-2">
+            <h1 class="text-lg sm:text-2xl font-black tracking-wide text-cyan-300">
+              AI MISSION TERMINAL
+            </h1>
+            <span class="text-[10px] font-tech text-cyan-400 bg-cyan-950/80 px-2 py-0.5 rounded border border-cyan-500/50 hidden sm:inline glow-radar">SYS: ACTIVE</span>
+          </div>
+          <p class="text-[11px] sm:text-xs text-slate-400 font-bold font-tech">PHILIPPINES ED-TECH RESEARCH DEPOT // AGES 9-12</p>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2 font-tech">
+        <button id="btn-open-reflection" class="px-2.5 py-1.5 rounded-xl bg-indigo-950 hover:bg-indigo-900 text-indigo-300 border border-indigo-500/50 font-bold text-xs cyber-btn shadow flex items-center gap-1.5">
+          <span>📝</span> <span>CREW LOG</span>
+        </button>
+        <div class="flex items-center gap-1.5 bg-slate-900/90 px-2.5 py-1.5 rounded-xl border border-cyan-500/40 text-xs text-cyan-200">
+          <span class="text-slate-400 hidden sm:inline">VIEW:</span>
+          <select id="font-size-select" class="bg-transparent font-bold text-cyan-300 focus:outline-none cursor-pointer text-xs">
+            <option value="87.5" class="bg-slate-900">Compact</option>
+            <option value="100" selected class="bg-slate-900">Standard</option>
+            <option value="112.5" class="bg-slate-900">Expanded</option>
+          </select>
+        </div>
+        <button id="btn-audio" class="px-3 py-1.5 rounded-xl bg-slate-900/90 hover:bg-slate-800 text-cyan-300 border border-cyan-500/50 font-bold text-xs cyber-btn shadow">
+          🔊 Sound: ON
+        </button>
+      </div>
+    </header>
+
+    <!-- SCREEN 0: CREW SETUP -->
+    <section id="screen-setup" class="flex flex-col items-center text-center py-2 sm:py-3 space-y-3 sm:space-y-4 my-auto">
+      <div class="space-y-1">
+        <div class="text-4xl sm:text-5xl">🤖📡🧭</div>
+        <h2 class="text-xl sm:text-3xl font-black text-cyan-200 tracking-wide">
+          Initialize AI Research Crew
+        </h2>
+        <p class="text-xs sm:text-sm text-slate-300 max-w-xl mx-auto font-bold px-2">
+          Clear <strong>Sector 1</strong> to unlock the next! Every mission features 3 difficulty tiers and dedicated learning logs.
+        </p>
+      </div>
+
+      <!-- COLLABORATIVE ROLES CONSOLE -->
+      <div class="w-full max-w-3xl bg-slate-900/80 border border-cyan-500/30 rounded-2xl p-3 sm:p-4 text-left space-y-2">
+        <div class="flex items-center justify-between border-b border-cyan-500/20 pb-1.5 font-tech">
+          <span class="text-[11px] sm:text-xs text-cyan-300 uppercase tracking-wider flex items-center gap-1.5">
+            <span class="w-2 h-2 rounded-full bg-cyan-400 animate-ping"></span> Shared Console Team Protocol
+          </span>
+          <span class="text-[10px] bg-cyan-950 text-cyan-300 px-2 py-0.5 rounded border border-cyan-800">1 Device // 3-4 Students</span>
+        </div>
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
+          <div class="p-2 rounded-xl bg-slate-950/70 border border-slate-700/80">
+            <div class="font-black text-cyan-300 flex items-center gap-1">🎮 Operator</div>
+            <p class="text-slate-400 font-bold mt-0.5 text-[10px] sm:text-[11px]">Controls the touch blade & path rules.</p>
+          </div>
+          <div class="p-2 rounded-xl bg-slate-950/70 border border-slate-700/80">
+            <div class="font-black text-teal-300 flex items-center gap-1">🔍 Clue Finder</div>
+            <p class="text-slate-400 font-bold mt-0.5 text-[10px] sm:text-[11px]">Inspects feature patterns and obstacles.</p>
+          </div>
+          <div class="p-2 rounded-xl bg-slate-950/70 border border-slate-700/80">
+            <div class="font-black text-amber-300 flex items-center gap-1">🧪 Tester</div>
+            <p class="text-slate-400 font-bold mt-0.5 text-[10px] sm:text-[11px]">Runs algorithm tests to verify solutions.</p>
+          </div>
+          <div class="p-2 rounded-xl bg-slate-950/70 border border-slate-700/80">
+            <div class="font-black text-indigo-300 flex items-center gap-1">🗣️ Explainer</div>
+            <p class="text-slate-400 font-bold mt-0.5 text-[10px] sm:text-[11px]">Logs discoveries in the Research Lab.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- COMPANION AI UNIT SELECTOR -->
+      <div class="w-full max-w-3xl space-y-1.5 font-tech">
+        <div class="text-[11px] sm:text-xs font-bold text-slate-400 uppercase tracking-wider">Select Neural Companion Unit:</div>
+        <div class="buddy-grid grid grid-cols-1 sm:grid-cols-3 gap-2.5 sm:gap-3">
+          <div class="buddy-option selected p-3 rounded-2xl bg-slate-900/90 border border-cyan-500/50 shadow flex flex-col items-center text-center space-y-1" data-buddy="TarSi">
+            <div class="w-14 h-14 rounded-2xl bg-cyan-950/60 border border-cyan-400/40 flex items-center justify-center text-3xl shadow-inner">🐵</div>
+            <h3 class="font-black text-cyan-200 text-sm font-sans">TarSi Monkey</h3>
+            <p class="text-[10px] sm:text-xs text-slate-400 font-sans">Visual scout from Bohol!</p>
+            <span class="text-[10px] bg-cyan-900/60 text-cyan-300 font-bold px-2 py-0.5 rounded-full border border-cyan-500/40">CALIBRATED</span>
+          </div>
+
+          <div class="buddy-option p-3 rounded-2xl bg-slate-900/90 border border-slate-700/80 shadow flex flex-col items-center text-center space-y-1" data-buddy="Tala">
+            <div class="w-14 h-14 rounded-2xl bg-slate-950 border border-slate-700 flex items-center justify-center text-3xl shadow-inner">🦜</div>
+            <h3 class="font-black text-cyan-200 text-sm font-sans">Tala Bird</h3>
+            <p class="text-[10px] sm:text-xs text-slate-400 font-sans">Radar eyes for maze algorithms!</p>
+            <span class="text-[10px] bg-slate-800 text-slate-400 font-bold px-2 py-0.5 rounded-full border border-slate-700">SELECT</span>
+          </div>
+
+          <div class="buddy-option p-3 rounded-2xl bg-slate-900/90 border border-slate-700/80 shadow flex flex-col items-center text-center space-y-1" data-buddy="Bono">
+            <div class="w-14 h-14 rounded-2xl bg-slate-950 border border-slate-700 flex items-center justify-center text-3xl shadow-inner">🤖</div>
+            <h3 class="font-black text-cyan-200 text-sm font-sans">Bono Bot</h3>
+            <p class="text-[10px] sm:text-xs text-slate-400 font-sans">The maze explorer helper!</p>
+            <span class="text-[10px] bg-slate-800 text-slate-400 font-bold px-2 py-0.5 rounded-full border border-slate-700">SELECT</span>
+          </div>
+        </div>
+      </div>
+
+      <button id="btn-start-arcade" class="w-full max-w-sm py-3 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-black text-base sm:text-lg rounded-xl border-b-4 border-cyan-800 cyber-btn shadow-lg">
+        ⚡ INITIALIZE SECTOR MAP ➔
+      </button>
+    </section>
+
+    <!-- SCREEN 1: 5-ISLAND MISSION MAP & DIFFICULTY CONTROLLER -->
+    <section id="screen-welcome" class="hidden flex-col items-center text-center py-2 sm:py-3 space-y-3 my-auto">
+      <div class="flex items-center gap-3 bg-slate-900/90 border border-cyan-500/30 px-4 py-1.5 rounded-xl shadow flex-wrap justify-center text-xs font-tech">
+        <span id="active-buddy-avatar" class="text-2xl">🐵</span>
+        <div class="text-left">
+          <div class="text-[9px] text-slate-400 uppercase">ACTIVE COMPANION</div>
+          <div id="active-buddy-name" class="text-xs sm:text-sm font-black text-cyan-300">TarSi Monkey</div>
+        </div>
+        <div class="h-5 w-px bg-slate-700"></div>
+        <div class="text-left">
+          <div class="text-[9px] text-teal-400 uppercase">CREW FOCUS</div>
+          <div id="active-role-display" class="text-xs sm:text-sm font-black text-teal-300">🎮 Operator (Student 1)</div>
+        </div>
+        <button id="btn-change-buddy" class="text-[11px] bg-slate-800 hover:bg-slate-700 text-cyan-200 font-bold px-2.5 py-1 rounded-lg border border-slate-600 cyber-btn">RECONFIGURE</button>
+      </div>
+
+      <!-- GLOBAL DIFFICULTY SELECTOR (3 DIFFICULTY LEVELS) -->
+      <div class="w-full max-w-3xl bg-slate-900/80 border border-cyan-500/30 rounded-2xl p-2.5 flex items-center justify-between flex-wrap gap-2 text-xs font-tech">
+        <div class="flex items-center gap-2">
+          <span class="text-cyan-400 font-bold uppercase tracking-wide">MISSION DIFFICULTY:</span>
+          <span id="diff-desc-label" class="text-slate-400 text-[11px]">Normal pacing & standard challenge parameters.</span>
+        </div>
+        <div class="flex items-center gap-1.5">
+          <button class="diff-btn px-2.5 py-1 rounded-lg bg-slate-950 text-slate-300 font-bold" data-diff="EASY">
+            🌱 CADET (EASY)
+          </button>
+          <button class="diff-btn selected px-2.5 py-1 rounded-lg bg-slate-950 text-slate-300 font-bold" data-diff="NORMAL">
+            ⚡ RESEARCHER (NORMAL)
+          </button>
+          <button class="diff-btn px-2.5 py-1 rounded-lg bg-slate-950 text-slate-300 font-bold" data-diff="HARD">
+            🔥 MASTER (HARD)
+          </button>
+        </div>
+      </div>
+
+      <div class="space-y-0.5">
+        <h2 class="text-xl sm:text-2xl font-black text-cyan-100 tracking-wide">
+          RESEARCH LAB SECTOR MAP
+        </h2>
+        <p class="text-xs sm:text-sm text-slate-300 font-bold max-w-xl mx-auto px-2">
+          Execute missions in sequence to calibrate and protect the School AI helper!
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full max-w-3xl pt-1">
+        <!-- Island 1: Slicer -->
+        <button class="btn-play-island p-3.5 rounded-2xl bg-slate-900/90 border border-cyan-500/50 text-left cyber-btn shadow flex items-center justify-between" data-island="1">
+          <div>
+            <div class="flex items-center gap-1.5 flex-wrap font-tech">
+              <span class="text-[10px] text-cyan-400">SECTOR 1 // VISION</span>
+              <span class="text-[9px] bg-cyan-950 text-cyan-300 px-2 py-0.5 rounded border border-cyan-800">SLICER 🍉</span>
+              <span class="lock-tag text-[9px] bg-emerald-950 text-emerald-300 px-2 py-0.5 rounded border border-emerald-800">ONLINE</span>
+            </div>
+            <div class="text-sm sm:text-base font-black text-slate-100 mt-1">Canteen Vision Training Lab</div>
+            <div class="text-[11px] sm:text-xs text-slate-400 mt-0.5">Harvest fruit samples across angles! Avoid corrupt glitch bombs.</div>
+          </div>
+          <span class="text-2xl ml-2">🍉</span>
+        </button>
+
+        <!-- Island 2: MC Mode -->
+        <button class="btn-play-island p-3.5 rounded-2xl bg-slate-900/90 border border-slate-800 text-left shadow flex items-center justify-between opacity-50 grayscale cursor-not-allowed" data-island="2">
+          <div>
+            <div class="flex items-center gap-1.5 flex-wrap font-tech">
+              <span class="text-[10px] text-indigo-400">SECTOR 2 // DATA QUALITY</span>
+              <span class="text-[9px] bg-indigo-950 text-indigo-300 px-2 py-0.5 rounded border border-indigo-800">DIAGNOSTIC MC 📋</span>
+              <span class="lock-tag text-[9px] bg-slate-800 text-slate-400 px-2 py-0.5 rounded border border-slate-700">🔒 LOCKED</span>
+            </div>
+            <div class="text-sm sm:text-base font-black text-slate-100 mt-1">Data Hygiene & Noise Lab</div>
+            <div class="text-[11px] sm:text-xs text-slate-400 mt-0.5">Examine sensor cards to prevent Garbage In, Garbage Out failures.</div>
+          </div>
+          <span class="text-2xl ml-2">🔍</span>
+        </button>
+
+        <!-- Island 3: Platformer -->
+        <button class="btn-play-island p-3.5 rounded-2xl bg-slate-900/90 border border-slate-800 text-left shadow flex items-center justify-between opacity-50 grayscale cursor-not-allowed" data-island="3">
+          <div>
+            <div class="flex items-center gap-1.5 flex-wrap font-tech">
+              <span class="text-[10px] text-teal-400">SECTOR 3 // FEATURE WEIGHTS</span>
+              <span class="text-[9px] bg-teal-950 text-teal-300 px-2 py-0.5 rounded border border-teal-800">GLITCH JUMPER 🍄</span>
+              <span class="lock-tag text-[9px] bg-slate-800 text-slate-400 px-2 py-0.5 rounded border border-slate-700">🔒 LOCKED</span>
+            </div>
+            <div class="text-sm sm:text-base font-black text-slate-100 mt-1">Feature Attribution & Heatmaps</div>
+            <div class="text-[11px] sm:text-xs text-slate-400 mt-0.5">Stomp glitch bugs to discover why the AI called a dog a bear!</div>
+          </div>
+          <span class="text-2xl ml-2">🍄</span>
+        </button>
+
+        <!-- Island 4: Robot Maze Mode -->
+        <button class="btn-play-island p-3.5 rounded-2xl bg-slate-900/90 border border-slate-800 text-left shadow flex items-center justify-between opacity-50 grayscale cursor-not-allowed" data-island="4">
+          <div>
+            <div class="flex items-center gap-1.5 flex-wrap font-tech">
+              <span class="text-[10px] text-amber-400">SECTOR 4 // STEP-BY-STEP RULES</span>
+              <span class="text-[9px] bg-amber-950 text-amber-300 px-2 py-0.5 rounded border border-amber-800">ROBOT MAZE 🧭</span>
+              <span class="lock-tag text-[9px] bg-slate-800 text-slate-400 px-2 py-0.5 rounded border border-slate-700">🔒 LOCKED</span>
+            </div>
+            <div class="text-sm sm:text-base font-black text-slate-100 mt-1">Robot Maze & Route Repair</div>
+            <div class="text-[11px] sm:text-xs text-slate-400 mt-0.5">Draw a path, watch Bono follow it, and repair a route that hits a wall!</div>
+          </div>
+          <span class="text-2xl ml-2">🧭</span>
+        </button>
+
+        <!-- Island 5: Boss Rush -->
+        <button class="btn-play-island p-3.5 rounded-2xl bg-slate-900/90 border border-slate-800 text-left shadow flex items-center justify-between sm:col-span-2 opacity-50 grayscale cursor-not-allowed" data-island="5">
+          <div>
+            <div class="flex items-center gap-1.5 flex-wrap font-tech">
+              <span class="text-[10px] text-rose-400">SECTOR 5 // APPLIED DEFENSE</span>
+              <span class="text-[9px] bg-rose-950 text-rose-300 px-2 py-0.5 rounded border border-rose-800">BOSS OVERRIDE 👑</span>
+              <span class="lock-tag text-[9px] bg-slate-800 text-slate-400 px-2 py-0.5 rounded border border-slate-700">🔒 LOCKED</span>
+            </div>
+            <div class="text-sm sm:text-base font-black text-slate-100 mt-1">Festival AI Core Defense</div>
+            <div class="text-[11px] sm:text-xs text-slate-400 mt-0.5">Deflect glitch lightning and trigger the emergency Human-in-the-Loop lock!</div>
+          </div>
+          <span class="text-2xl ml-2">👑</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- SCREEN 2: ACTIVE GAMEPLAY ARENA -->
+    <section id="screen-arena" class="hidden flex-col gap-2.5 my-auto">
+      
+      <!-- TOP SCI-FI HUD -->
+      <div class="flex items-center justify-between bg-slate-950/90 border border-cyan-500/40 rounded-xl p-2.5 sm:p-3 text-white shadow flex-wrap gap-2 text-xs font-tech">
+        <div class="flex items-center gap-2">
+          <span class="px-2 py-0.5 bg-cyan-950 border border-cyan-500 text-cyan-300 rounded text-[10px]" id="hud-mode-title">
+            SLICER CALIBRATION
+          </span>
+          <span class="px-1.5 py-0.5 bg-slate-800 border border-slate-600 text-amber-300 rounded text-[9px]" id="hud-diff-badge">
+            NORMAL
+          </span>
+          <span class="text-slate-300 text-[11px] sm:text-xs" id="hud-mission-goal">
+            TASK: HARVEST SAMPLES
+          </span>
+        </div>
+
+        <div class="flex items-center gap-3 sm:gap-4 font-arcade text-[10px]">
+          <span class="text-amber-400">PTS:<span id="hud-score" class="text-white ml-1">0</span></span>
+          <span class="text-slate-400">SHIELD:<span id="hud-hp" class="text-emerald-400 ml-1">❤️❤️❤️</span></span>
+          <span class="text-cyan-400">PROGRESS:<span id="hud-target-count" class="text-white ml-1">0/8</span></span>
+        </div>
+      </div>
+
+      <!-- TEAM ROLES ROTATION STRIP -->
+      <div class="bg-slate-900/90 border border-cyan-500/30 rounded-xl px-3 py-1.5 text-slate-200 flex items-center justify-between flex-wrap gap-2 text-xs font-tech">
+        <div class="flex items-center gap-2">
+          <span id="role-icon" class="text-base sm:text-lg">🎮</span>
+          <div>
+            <span class="text-cyan-400 text-[10px] font-bold" id="role-title">OPERATOR FOCUS:</span>
+            <span class="text-slate-300 ml-1 text-[11px] font-sans" id="role-instruction">Controls the touch blade or maze path under crew guidance!</span>
+          </div>
+        </div>
+        <button id="btn-next-role" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-cyan-300 rounded-lg text-[10px] font-bold cyber-btn border border-cyan-600/40">
+          🔄 ROTATE CREW ROLE
+        </button>
+      </div>
+
+      <!-- MAIN LAB WORKBENCH -->
+      <div class="relative w-full flex flex-col items-center">
+        
+        <!-- 1. ARCADE & MAZE CANVAS CONTAINER -->
+        <div id="arcade-canvas-container" class="relative w-full max-w-4xl h-[280px] sm:h-[350px] md:h-[380px]">
+          <canvas id="game-canvas"></canvas>
+          <div class="scanline-overlay"></div>
+        </div>
+
+        <!-- 2. MC LAB CONTAINER -->
+        <div id="mc-mission-container" class="hidden w-full max-w-4xl bg-slate-900/90 border border-cyan-500/40 rounded-2xl p-4 sm:p-5 shadow flex-col justify-between min-h-[300px] sm:min-h-[350px]">
+          <div class="space-y-2.5">
+            <div class="flex items-center justify-between flex-wrap gap-2 border-b border-cyan-500/20 pb-2 font-tech">
+              <span class="px-2.5 py-0.5 bg-cyan-950 text-cyan-300 rounded border border-cyan-800 text-[11px] uppercase tracking-wider" id="mc-question-topic">
+                🔍 Topic
+              </span>
+              <span class="text-[10px] text-slate-400 font-arcade" id="mc-question-counter">
+                CASE 1 / 3
+              </span>
+            </div>
+
+            <div class="space-y-1">
+              <h3 class="text-sm sm:text-lg font-black text-slate-100 leading-snug" id="mc-question-stem">
+                Question stem
+              </h3>
+              <p class="text-[11px] sm:text-xs text-slate-400 font-bold" id="mc-question-subtext">
+                Evaluate hypotheses with your team and submit findings:
+              </p>
+            </div>
+
+            <div class="grid grid-cols-1 gap-2 pt-1 font-sans" id="mc-options-list">
+              <!-- Dynamically populated options -->
+            </div>
+          </div>
+
+          <!-- MC Telemetry Feedback Card -->
+          <div id="mc-feedback-card" class="hidden mt-3 p-3 rounded-xl border text-xs font-bold font-sans">
+            <div id="mc-feedback-title" class="font-black text-sm mb-0.5"></div>
+            <div id="mc-feedback-desc" class="text-xs"></div>
+            <button id="btn-next-mc-task" class="mt-2.5 px-4 py-1.5 bg-cyan-600 hover:bg-cyan-500 text-white font-extrabold text-xs rounded-lg cyber-btn border border-cyan-400 shadow">
+              NEXT CASE ➔
+            </button>
+          </div>
+        </div>
+
+        <!-- TOUCH CONTROLS (FOR MARIO PLATFORMER) -->
+        <div id="touch-controls" class="hidden w-full max-w-4xl justify-between items-center px-2 sm:px-4 pt-2">
+          <div class="flex gap-2">
+            <button id="btn-ctrl-left" class="w-14 h-12 sm:w-16 sm:h-14 bg-slate-900 active:bg-slate-800 text-cyan-300 font-black text-xl rounded-xl border border-cyan-500/40 flex items-center justify-center shadow">
+              ◀
+            </button>
+            <button id="btn-ctrl-right" class="w-14 h-12 sm:w-16 sm:h-14 bg-slate-900 active:bg-slate-800 text-cyan-300 font-black text-xl rounded-xl border border-cyan-500/40 flex items-center justify-center shadow">
+              ▶
+            </button>
+          </div>
+          <button id="btn-ctrl-jump" class="w-24 h-12 sm:w-28 sm:h-14 bg-cyan-700 active:bg-cyan-600 text-white font-black text-xs sm:text-sm rounded-xl border border-cyan-400 flex items-center justify-center shadow font-arcade">
+            THRUST ⬆️
+          </button>
+        </div>
+
+        <!-- DEDICATED ROBOT MAZE ACTION BUTTONS -->
+        <div id="maze-action-controls" class="hidden w-full max-w-4xl justify-between items-center px-2 sm:px-4 pt-2 gap-2 flex-wrap font-tech">
+          <button id="btn-maze-run" class="flex-1 min-w-[140px] py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs rounded-xl cyber-btn border border-emerald-400 shadow flex items-center justify-center gap-1.5">
+            ▶️ RUN ALGORITHM (WATCH BONO)
+          </button>
+          <button id="btn-maze-clear" class="py-2.5 px-4 bg-slate-800 hover:bg-slate-700 text-amber-300 font-bold text-xs rounded-xl cyber-btn border border-amber-500/40 shadow flex items-center justify-center gap-1">
+            🔄 REPAIR / CLEAR PATH
+          </button>
+        </div>
+      </div>
+
+      <!-- INLINE AI WORKBENCH -->
+      <div id="ai-workbench-card" class="bg-slate-950/80 border border-cyan-500/30 rounded-xl p-2.5 sm:p-3 shadow flex items-center justify-between gap-2.5 flex-wrap font-sans">
+        <div class="flex items-center gap-2.5 flex-1 min-w-[220px]">
+          <div id="workbench-avatar" class="w-10 h-10 bg-slate-900 rounded-xl flex items-center justify-center text-2xl border border-cyan-500/40 shadow-inner flex-shrink-0">
+            🐵
+          </div>
+          <div>
+            <div class="text-[9px] font-tech text-cyan-400 uppercase tracking-wider" id="workbench-status-label">DIAGNOSTIC TELEMETRY:</div>
+            <p id="workbench-dialogue" class="text-[11px] sm:text-xs text-slate-300 font-bold leading-tight">
+              "Slice bananas across multiple angles to augment the dataset!"
+            </p>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-2 font-tech">
+          <button id="btn-restart-round" class="px-2.5 py-1.5 bg-slate-900 hover:bg-slate-800 text-amber-300 rounded-lg text-xs cyber-btn border border-amber-500/40">
+            🔄 RESET
+          </button>
+          <button id="btn-exit-to-hub" class="px-2.5 py-1.5 bg-slate-900 hover:bg-slate-800 text-slate-300 rounded-lg text-xs cyber-btn border border-slate-700">
+            🛸 HUB
+          </button>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- SCREEN 3: MISSION DEBRIEF & LEVEL CLEAR -->
+    <section id="screen-level-clear" class="hidden flex-col items-center text-center py-3 space-y-3 my-auto max-h-[88vh] overflow-y-auto pr-1">
+      <div class="text-4xl">🛰️✨</div>
+      <h2 id="stage-clear-title" class="text-xl sm:text-2xl font-black text-cyan-200 tracking-wide">
+        SECTOR VALIDATION COMPLETE!
+      </h2>
+      <p id="stage-clear-msg" class="text-xs sm:text-sm text-slate-300 font-bold max-w-md mx-auto px-2">
+        "Model weights successfully updated and verified in simulation!"
+      </p>
+
+      <div class="bg-slate-900/90 border border-cyan-500/40 rounded-2xl p-3.5 w-full max-w-md space-y-1 shadow">
+        <div class="text-[9px] font-tech text-cyan-400 uppercase tracking-wider">TELEMETRY BADGE CERTIFIED</div>
+        <div id="badge-reward" class="text-sm sm:text-base font-black text-cyan-200 flex items-center justify-center gap-1.5 font-sans">
+          🎖️ Eagle-Eyed Data Curator
+        </div>
+        <div id="stage-final-score" class="text-xl sm:text-2xl font-black text-amber-400 font-arcade">
+          +1000 PTS ⭐
+        </div>
+      </div>
+
+      <!-- IN-STAGE QUICK REFLECTION & RETRY PROMPT -->
+      <div class="w-full max-w-md bg-slate-900/90 border border-cyan-500/30 rounded-2xl p-3.5 text-left space-y-2 shadow">
+        <div class="flex items-center justify-between border-b border-cyan-500/20 pb-1 font-tech">
+          <span class="text-[11px] text-cyan-300 uppercase tracking-wider">🗣️ Neural Synthesis Protocol</span>
+          <span class="text-[9px] bg-cyan-950 text-cyan-300 px-2 py-0.5 rounded border border-cyan-800">Quick Log</span>
+        </div>
+        <p id="reflection-prompt" class="text-xs font-bold text-slate-200 leading-relaxed font-sans">
+          Why did feeding multi-angle visual samples improve general accuracy?
+        </p>
+        <div class="bg-slate-950 p-2 rounded-xl border border-slate-800 text-xs text-slate-300 font-bold space-y-0.5 font-sans">
+          <div class="text-cyan-400 font-black text-[11px]">💡 Foundational Machine Learning Principle:</div>
+          <p id="reflection-concept-desc" class="text-[11px] leading-snug">
+            AI builds numerical pattern bounds solely from ingested training data.
+          </p>
+        </div>
+        <textarea id="team-reflection-input" class="w-full p-2 rounded-xl bg-slate-950 border border-slate-700 text-xs font-bold text-slate-200 focus:outline-none focus:border-cyan-400 font-sans" rows="2" placeholder="Write your team's thoughts here..."></textarea>
+        
+        <div class="flex gap-2 pt-1 font-tech">
+          <button id="btn-save-reflection" class="flex-1 py-1.5 bg-slate-800 hover:bg-slate-700 text-cyan-300 font-bold text-xs rounded-xl cyber-btn border border-cyan-600/40">
+            TRANSMIT LOG 💭
+          </button>
+          <button id="btn-retry-missed-quick" class="hidden flex-1 py-1.5 bg-amber-950 hover:bg-amber-900 text-amber-300 font-bold text-xs rounded-xl cyber-btn border border-amber-500/50">
+            🔄 RETRY MISSED CASES
+          </button>
+        </div>
+      </div>
+
+      <div class="flex gap-2.5 w-full max-w-md pt-1 font-tech">
+        <button id="btn-clear-menu" class="flex-1 py-2.5 bg-slate-900 hover:bg-slate-800 text-slate-300 font-bold text-xs rounded-xl cyber-btn border border-slate-700">
+          SECTOR HUB
+        </button>
+        <button id="btn-next-mode" class="flex-2 py-2.5 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-bold text-xs sm:text-sm rounded-xl cyber-btn border border-cyan-400 shadow">
+          UNLOCK NEXT SECTOR ➔
+        </button>
+      </div>
+    </section>
+
+    <!-- SCREEN 4: DEDICATED STAGE (RESEARCH LAB & LOG ARCHIVE + RETRY INCORRECT ANSWERS) -->
+    <section id="screen-reflection-stage" class="hidden flex-col items-center text-center py-2 sm:py-3 space-y-3 my-auto max-h-[88vh] overflow-y-auto pr-1">
+      <div class="space-y-1">
+        <div class="text-3xl sm:text-4xl">📝🔬🛰️</div>
+        <h2 class="text-lg sm:text-2xl font-black text-cyan-200 tracking-wide">
+          DEDICATED STAGE: CREW REFLECTION & RETRY ARCHIVE
+        </h2>
+        <p class="text-xs sm:text-sm text-slate-300 max-w-xl mx-auto font-bold px-2">
+          Review your hypotheses, record crew notes, and re-test any incorrect answers!
+        </p>
+      </div>
+
+      <!-- MISSED ANSWERS RETRY SECTION -->
+      <div id="retry-archive-card" class="w-full max-w-3xl bg-slate-900/90 border border-amber-500/40 rounded-2xl p-3 sm:p-4 text-left space-y-2">
+        <div class="flex items-center justify-between border-b border-amber-500/20 pb-1.5 font-tech">
+          <span class="text-xs text-amber-300 uppercase tracking-wider flex items-center gap-1.5 font-bold">
+            <span>🔄</span> RETRY ARCHIVE: INCORRECT CASES TO MASTER
+          </span>
+          <span id="missed-count-badge" class="text-[10px] bg-amber-950 text-amber-300 px-2 py-0.5 rounded border border-amber-700">
+            0 CASES NEED REPAIR
+          </span>
+        </div>
+        <div id="retry-cases-list" class="space-y-2 text-xs">
+          <!-- Populated dynamically -->
+        </div>
+      </div>
+
+      <!-- SECTOR LOG ENTRIES (1 TO 5) -->
+      <div class="w-full max-w-3xl bg-slate-900/80 border border-cyan-500/30 rounded-2xl p-3 sm:p-4 text-left space-y-3 font-sans">
+        <div class="flex items-center justify-between border-b border-cyan-500/20 pb-1 font-tech">
+          <span class="text-xs text-cyan-300 uppercase tracking-wider font-bold">RESEARCH LOGBOOK (SECTORS 1 - 5)</span>
+          <span class="text-[10px] text-slate-400">EDITABLE BY CREW</span>
+        </div>
+
+        <div class="grid grid-cols-1 gap-2.5" id="reflection-logs-container">
+          <!-- Dynamically populated 5 Sector logs -->
+        </div>
+      </div>
+
+      <div class="flex gap-2.5 w-full max-w-md pt-2 font-tech">
+        <button id="btn-back-hub-from-ref" class="flex-1 py-2.5 bg-slate-900 hover:bg-slate-800 text-slate-300 font-bold text-xs rounded-xl cyber-btn border border-slate-700">
+          RETURN TO HUB
+        </button>
+      </div>
+    </section>
+
+    <!-- SCREEN 5: GRAND RESEARCH VICTORY -->
+    <section id="screen-victory" class="hidden flex-col items-center text-center py-4 space-y-3 my-auto max-h-[88vh] overflow-y-auto pr-1">
+      <div class="text-5xl">🏆🛰️</div>
+      <h2 id="victory-title" class="text-xl sm:text-2xl font-black text-cyan-200 tracking-wide">
+        MISSION SUCCESS: ALL 5 SECTORS SECURED!
+      </h2>
+      <p class="text-xs sm:text-sm text-slate-300 font-bold max-w-md mx-auto px-2">
+        "All neural pipelines are verified, mathematically balanced, and guarded by human oversight!"
+      </p>
+
+      <div class="bg-slate-900/90 border border-cyan-500/50 rounded-2xl p-4 w-full max-w-md space-y-2.5 shadow">
+        <div class="flex justify-around items-center font-tech">
+          <div>
+            <div class="text-[9px] text-slate-400 uppercase">FINAL SCORE</div>
+            <div id="victory-score" class="text-xl sm:text-2xl font-black text-amber-400 font-arcade">5000 ⭐</div>
+          </div>
+          <div class="h-8 w-px bg-slate-700"></div>
+          <div>
+            <div class="text-[9px] text-slate-400 uppercase">SECTORS CERTIFIED</div>
+            <div class="text-xl sm:text-2xl font-black text-cyan-300 font-arcade">5 / 5 🛸</div>
+          </div>
+        </div>
+
+        <div class="text-[11px] font-bold text-slate-300 bg-slate-950 p-2.5 rounded-xl border border-slate-800 text-left space-y-0.5 font-sans">
+          <div class="text-cyan-300 font-black text-center mb-1 font-tech uppercase tracking-wider">Certified Competency Badges:</div>
+          <div>✅ 1. Visual Feature Curator (Data Augmentation)</div>
+          <div>✅ 2. Data Hygiene Detective (Garbage In, Garbage Out)</div>
+          <div>✅ 3. Bias Diagnostic Engineer (Attribution Heatmaps)</div>
+          <div>✅ 4. Maze Algorithm Architect (Step Rules & Route Repair)</div>
+          <div>✅ 5. Human-in-the-Loop Architect (Safety Guardrails)</div>
+        </div>
+      </div>
+
+      <div class="flex gap-2 w-full max-w-md pt-1 font-tech">
+        <button id="btn-view-logs-final" class="flex-1 py-3 bg-slate-900 hover:bg-slate-800 text-cyan-300 font-bold text-xs rounded-xl cyber-btn border border-cyan-500/40">
+          VIEW CREW LOGS 📝
+        </button>
+        <button id="btn-replay-all" class="flex-1 py-3 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 text-white font-bold text-xs rounded-xl cyber-btn border border-cyan-400 shadow">
+          RE-INITIALIZE 🔄
+        </button>
+      </div>
+    </section>
+
+  </main>
+
+  <script>
+    // ========================================================
+    // SOUND ENGINE
+    // ========================================================
+    class ArcadeSound {
+      constructor() { this.ctx = null; this.enabled = true; }
+      init() {
+        if (!this.ctx) {
+          const AudioContext = window.AudioContext || window.webkitAudioContext;
+          if (AudioContext) this.ctx = new AudioContext();
+        }
+        if (this.ctx && this.ctx.state === 'suspended') {
+          this.ctx.resume();
+        }
+      }
+      playTone(freq, duration = 0.1, type = 'sine', decay = true) {
+        if (!this.enabled) return;
+        try {
+          this.init();
+          if (!this.ctx) return;
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = type;
+          osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
+          gain.gain.setValueAtTime(0.08, this.ctx.currentTime);
+          if (decay) gain.gain.exponentialRampToValueAtTime(0.0001, this.ctx.currentTime + duration);
+          osc.connect(gain); gain.connect(this.ctx.destination);
+          osc.start(); osc.stop(this.ctx.currentTime + duration);
+        } catch (e) {}
+      }
+      step() { this.playTone(550, 0.06, 'triangle'); }
+      slice() {
+        if (!this.enabled) return;
+        try {
+          this.init();
+          if (!this.ctx) return;
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(850, this.ctx.currentTime);
+          osc.frequency.exponentialRampToValueAtTime(160, this.ctx.currentTime + 0.12);
+          gain.gain.setValueAtTime(0.09, this.ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.12);
+          osc.connect(gain); gain.connect(this.ctx.destination);
+          osc.start(); osc.stop(this.ctx.currentTime + 0.12);
+        } catch (e) {}
+      }
+      jump() {
+        if (!this.enabled) return;
+        try {
+          this.init();
+          if (!this.ctx) return;
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'square';
+          osc.frequency.setValueAtTime(160, this.ctx.currentTime);
+          osc.frequency.exponentialRampToValueAtTime(540, this.ctx.currentTime + 0.14);
+          gain.gain.setValueAtTime(0.05, this.ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.14);
+          osc.connect(gain); gain.connect(this.ctx.destination);
+          osc.start(); osc.stop(this.ctx.currentTime + 0.14);
+        } catch (e) {}
+      }
+      coin() {
+        this.playTone(880, 0.08, 'sine');
+        setTimeout(() => this.playTone(1174, 0.16, 'sine'), 65);
+      }
+      stomp() { this.playTone(210, 0.12, 'sawtooth'); }
+      bump() {
+        this.playTone(140, 0.18, 'sawtooth');
+        setTimeout(() => this.playTone(90, 0.22, 'square'), 80);
+      }
+      bomb() {
+        this.playTone(120, 0.28, 'sawtooth');
+        setTimeout(() => this.playTone(70, 0.2, 'sawtooth'), 70);
+      }
+      locked() {
+        this.playTone(140, 0.1, 'square');
+        setTimeout(() => this.playTone(110, 0.15, 'square'), 80);
+      }
+      win() {
+        this.playTone(523, 0.1);
+        setTimeout(() => this.playTone(659, 0.1), 80);
+        setTimeout(() => this.playTone(783, 0.12), 160);
+        setTimeout(() => this.playTone(1046, 0.22), 240);
+      }
+    }
+    const sound = new ArcadeSound();
+
+    // ========================================================
+    // FIREWORKS
+    // ========================================================
+    function triggerFireworks() {
+      const canvas = document.getElementById('fireworks-canvas');
+      canvas.classList.remove('hidden');
+      const ctx = canvas.getContext('2d');
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+      let particles = [];
+      const colors = ['#00f5ff', '#38bdf8', '#fbbf24', '#34d399', '#818cf8', '#f43f5e'];
+      for (let i = 0; i < 65; i++) {
+        const angle = Math.random() * Math.PI * 2;
+        const speed = Math.random() * 6.5 + 2;
+        particles.push({
+          x: canvas.width / 2 + (Math.random() - 0.5) * 160,
+          y: canvas.height / 2 + (Math.random() - 0.5) * 100,
+          vx: Math.cos(angle) * speed,
+          vy: Math.sin(angle) * speed,
+          alpha: 1,
+          color: colors[Math.floor(Math.random() * colors.length)],
+          size: Math.random() * 3 + 2
+        });
+      }
+      function anim() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        let active = false;
+        particles.forEach(p => {
+          p.x += p.vx; p.y += p.vy; p.vy += 0.11; p.alpha -= 0.02;
+          if (p.alpha > 0) {
+            active = true;
+            ctx.save();
+            ctx.globalAlpha = p.alpha;
+            ctx.fillStyle = p.color;
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.restore();
+          }
+        });
+        if (active) requestAnimationFrame(anim);
+        else canvas.classList.add('hidden');
+      }
+      anim();
+    }
+
+    // ========================================================
+    // STATE & 3 DIFFICULTY TIERS
+    // ========================================================
+    let currentDifficulty = 'NORMAL'; // 'EASY', 'NORMAL', 'HARD'
+    let currentRoleIdx = 0;
+    let selectedBuddy = { id: 'TarSi', name: 'TarSi Monkey', emoji: '🐵' };
+    let currentIsland = 1;
+    let unlockedIsland = 1; // Strict progression: must finish Island 1 first!
+    let totalScore = 0;
+    let lives = 3;
+    let targetProgress = 0;
+    let targetGoal = 8;
+    let isGameOver = false;
+
+    // Retry / Mistake Tracking
+    let incorrectCases = []; // Array of { q, sessionData } for retry
+    let isRetryMode = false;
+    let retryIndex = 0;
+
+    // Crew Reflection Log storage
+    const CREW_LOGS = {
+      1: { title: "Sector 1: Data Augmentation & Vision", prompt: "Why does training with multiple angles and green fruits prevent camera blindness?", text: "" },
+      2: { title: "Sector 2: Data Quality (Garbage In, Garbage Out)", prompt: "What happens when anomalous strings like 'BANANA' pollute health sensor logs?", text: "" },
+      3: { title: "Sector 3: Feature Attribution Heatmaps", prompt: "Why did snowy backgrounds mislead the classifier to call a puppy a polar bear?", text: "" },
+      4: { title: "Sector 4: Step-by-Step Rules & Route Repair", prompt: "Why must algorithm code follow exact sequences, and why is human route repair necessary?", text: "" },
+      5: { title: "Sector 5: Human-in-the-Loop Safety Overrides", prompt: "Why must human supervisors maintain final veto authority over critical automated AI decisions?", text: "" }
+    };
+
+    const ROLES = [
+      { id: 'operator', title: "OPERATOR (Student 1)", icon: "🎮", action: "Draws maze path & guides navigation!" },
+      { id: 'clueFinder', title: "CLUE FINDER (Student 2)", icon: "🔍", action: "Spots wall traps, obstacles, and goals!" },
+      { id: 'tester', title: "TESTER (Student 3)", icon: "🧪", action: "Executes the algorithm test run to watch Bono!" },
+      { id: 'explainer', title: "EXPLAINER (Student 4)", icon: "🗣️", action: "Explains bugs, walls, and records crew logs!" }
+    ];
+
+    const BUDDIES = {
+      'TarSi': { name: 'TarSi Monkey', emoji: '🐵' },
+      'Tala': { name: 'Tala Bird', emoji: '🦜' },
+      'Bono': { name: 'Bono Bot', emoji: '🤖' }
+    };
+
+    // MC SESSIONS (Sector 2)
+    const MC_SESSIONS_DATA = {
+      2: {
+        title: "DATA HYGIENE DIAGNOSTIC 🔍",
+        badge: "Data Hygiene Detective 🧹",
+        rewardMsg: "You purified the clinic dataset! The neural network can now infer valid health stats!",
+        reflectionQ: "What happens to an AI helper if its training data contains noisy, corrupt cards?",
+        reflectionDesc: "AI computes numerical associations directly from examples. Corrupt labels or messy records degrade prediction reliability: Garbage In, Garbage Out!",
+        questions: [
+          {
+            id: 'case1',
+            topic: "Noise & Data Type Integrity",
+            stem: "A thermometer sensor file contains: [36.5°C, 37.0°C, 'BANANA']. What occurs if the AI trains on this?",
+            subtext: "Case 1 of 3 • Clue Finder & Tester analyze:",
+            options: [
+              { text: "The model errors or outputs meaningless measurements!", correct: true, exp: "Exact! The string 'BANANA' is anomalous data noise. Noisy inputs degrade prediction outputs!" },
+              { text: "The AI automatically consumes the banana.", correct: false, exp: "Computers execute mathematical algorithms—they have no human senses or instincts!" },
+              { text: "The model autonomously resolves all data errors with magic.", correct: false, exp: "Algorithms possess no magic—humans must inspect and sanitize datasets!" }
+            ],
+            hint: "Can a digital sensor measure body heat in pieces of fruit?"
+          },
+          {
+            id: 'case2',
+            topic: "Class Imbalance & Environmental Variation",
+            stem: "The model trained exclusively on 100 sunny daytime photos and 0 nighttime photos. What occurs at dusk?",
+            subtext: "Case 2 of 3 • Tester predict model response:",
+            options: [
+              { text: "It fails because it has no learned features for low-light conditions!", correct: true, exp: "Spot on! Lacking night photos causes severe degradation in dark environments!" },
+              { text: "The camera generates its own daylight automatically.", correct: false, exp: "Software cannot create sunlight! Models must be fed low-light training samples." },
+              { text: "The model performs better in the dark due to zero glare.", correct: false, exp: "Without low-light training features, the model is blind to darkness." }
+            ],
+            hint: "Think: can a system recognize lighting conditions it was never shown?"
+          },
+          {
+            id: 'case3',
+            topic: "Ground-Truth Annotation Correction",
+            stem: "A research assistant incorrectly labeled an ice pack as a 'Thermometer'. What is the engineering fix?",
+            subtext: "Case 3 of 3 • Operator & Explainer decide:",
+            options: [
+              { text: "Correct the label to 'Ice Pack' and retrain the model weights.", correct: true, exp: "Accurate! Correcting ground-truth annotations ensures accurate pattern mapping!" },
+              { text: "Scrap the hardware robot and discard all research.", correct: false, exp: "Hardware is functional—only the training annotation needed correction." },
+              { text: "Retain the erroneous label to encourage model creativity.", correct: false, exp: "Supervised classifiers require truthful ground-truth labels to function safely." }
+            ],
+            hint: "When flashcards have mistakes, we correct the label and re-study!"
+          }
+        ]
+      }
+    };
+
+    let mcCurrentIdx = 0;
+    let mcActiveQuestions = [];
+
+    const screens = {
+      setup: document.getElementById('screen-setup'),
+      welcome: document.getElementById('screen-welcome'),
+      arena: document.getElementById('screen-arena'),
+      levelClear: document.getElementById('screen-level-clear'),
+      reflectionStage: document.getElementById('screen-reflection-stage'),
+      victory: document.getElementById('screen-victory')
+    };
+
+    function showScreen(name) {
+      Object.keys(screens).forEach(k => screens[k].classList.add('hidden'));
+      screens[name].classList.remove('hidden');
+      screens[name].classList.add('flex');
+    }
+
+    function rotateTeamRole() {
+      currentRoleIdx = (currentRoleIdx + 1) % ROLES.length;
+      updateRoleHUD();
+      sound.playTone(450, 0.08);
+    }
+
+    function updateRoleHUD() {
+      const role = ROLES[currentRoleIdx];
+      document.getElementById('active-role-display').textContent = `${role.icon} ${role.title}`;
+      document.getElementById('role-icon').textContent = role.icon;
+      document.getElementById('role-title').textContent = `${role.title}:`;
+      document.getElementById('role-instruction').textContent = role.action;
+    }
+
+    document.getElementById('btn-next-role').onclick = rotateTeamRole;
+
+    // Difficulty Button Listeners
+    document.querySelectorAll('.diff-btn').forEach(btn => {
+      btn.onclick = () => {
+        sound.playTone(480, 0.06);
+        document.querySelectorAll('.diff-btn').forEach(b => b.classList.remove('selected'));
+        btn.classList.add('selected');
+        currentDifficulty = btn.dataset.diff;
+        
+        const labels = {
+          'EASY': 'Gentle speed, fewer obstacles, 50/50 clues enabled.',
+          'NORMAL': 'Standard pacing, balanced obstacles & targets.',
+          'HARD': 'Fast hazards, tighter mazes, high target quotas.'
+        };
+        document.getElementById('diff-desc-label').textContent = labels[currentDifficulty];
+      };
+    });
+
+    // Progression UI Control
+    function updateProgressionUI() {
+      document.querySelectorAll('.btn-play-island').forEach(btn => {
+        const id = parseInt(btn.dataset.island);
+        const lockTag = btn.querySelector('.lock-tag');
+        
+        if (id <= unlockedIsland) {
+          btn.classList.remove('opacity-50', 'grayscale', 'cursor-not-allowed');
+          btn.classList.add('cyber-btn');
+          if (lockTag) {
+            if (id < unlockedIsland) {
+              lockTag.className = "lock-tag text-[9px] bg-cyan-950 text-cyan-300 px-2 py-0.5 rounded border border-cyan-700";
+              lockTag.textContent = "VERIFIED ⭐";
+            } else {
+              lockTag.className = "lock-tag text-[9px] bg-emerald-950 text-emerald-300 px-2 py-0.5 rounded border border-emerald-700";
+              lockTag.textContent = "ONLINE ▶";
+            }
+          }
+        } else {
+          btn.classList.add('opacity-50', 'grayscale', 'cursor-not-allowed');
+          btn.classList.remove('cyber-btn');
+          if (lockTag) {
+            lockTag.className = "lock-tag text-[9px] bg-slate-950 text-slate-500 px-2 py-0.5 rounded border border-slate-800";
+            lockTag.textContent = `🔒 CLEAR SECTOR ${id - 1}`;
+          }
+        }
+      });
+    }
+
+    // Buddy Selection
+    document.querySelectorAll('.buddy-option').forEach(card => {
+      card.onclick = () => {
+        sound.init();
+        sound.playTone(400, 0.05);
+        document.querySelectorAll('.buddy-option').forEach(c => {
+          c.classList.remove('selected');
+          c.querySelector('span').textContent = 'SELECT';
+          c.querySelector('span').className = 'text-[10px] bg-slate-800 text-slate-400 font-bold px-2 py-0.5 rounded-full border border-slate-700';
+        });
+        card.classList.add('selected');
+        card.querySelector('span').textContent = 'CALIBRATED';
+        card.querySelector('span').className = 'text-[10px] bg-cyan-900/60 text-cyan-300 font-bold px-2 py-0.5 rounded-full border border-cyan-500/40';
+        const b = card.dataset.buddy;
+        selectedBuddy = { id: b, ...BUDDIES[b] };
+      };
+    });
+
+    document.getElementById('btn-start-arcade').onclick = () => {
+      sound.init();
+      sound.win();
+      document.getElementById('active-buddy-avatar').textContent = selectedBuddy.emoji;
+      document.getElementById('active-buddy-name').textContent = selectedBuddy.name;
+      document.getElementById('workbench-avatar').textContent = selectedBuddy.emoji;
+      updateRoleHUD();
+      updateProgressionUI();
+      showScreen('welcome');
+    };
+
+    document.getElementById('btn-change-buddy').onclick = () => {
+      sound.playTone(350, 0.05);
+      showScreen('setup');
+    };
+
+    document.getElementById('btn-header-home').onclick = () => {
+      stopCurrentGameLoop();
+      updateProgressionUI();
+      showScreen('welcome');
+    };
+    document.getElementById('btn-exit-to-hub').onclick = () => {
+      stopCurrentGameLoop();
+      updateProgressionUI();
+      showScreen('welcome');
+    };
+    document.getElementById('btn-clear-menu').onclick = () => {
+      updateProgressionUI();
+      showScreen('welcome');
+    };
+
+    document.getElementById('btn-open-reflection').onclick = () => {
+      sound.init();
+      sound.coin();
+      openReflectionStage();
+    };
+    document.getElementById('btn-back-hub-from-ref').onclick = () => {
+      sound.playTone(320, 0.05);
+      showScreen('welcome');
+    };
+    document.getElementById('btn-view-logs-final').onclick = () => {
+      openReflectionStage();
+    };
+
+    document.getElementById('btn-next-mode').onclick = () => {
+      rotateTeamRole();
+      if (currentIsland < 5) {
+        currentIsland++;
+        startIslandGame(currentIsland);
+      } else {
+        showScreen('victory');
+        triggerFireworks();
+        document.getElementById('victory-score').textContent = `${totalScore} ⭐`;
+      }
+    };
+
+    document.getElementById('btn-replay-all').onclick = () => {
+      totalScore = 0;
+      currentIsland = 1;
+      unlockedIsland = 1;
+      incorrectCases = [];
+      updateProgressionUI();
+      showScreen('setup');
+    };
+
+    document.querySelectorAll('.btn-play-island').forEach(btn => {
+      btn.onclick = () => {
+        sound.init();
+        const id = parseInt(btn.dataset.island);
+        if (id > unlockedIsland) {
+          sound.locked();
+          alert(`🔒 Protocol Restriction: Sector ${id} is locked! Complete Sector ${id - 1} first to calibrate your crew step-by-step.`);
+          return;
+        }
+        sound.coin();
+        currentIsland = id;
+        startIslandGame(currentIsland);
+      };
+    });
+
+    document.getElementById('btn-audio').onclick = () => {
+      sound.init();
+      sound.enabled = !sound.enabled;
+      document.getElementById('btn-audio').textContent = sound.enabled ? '🔊 Sound: ON' : '🔇 Sound: OFF';
+    };
+
+    // ========================================================
+    // DEDICATED STAGE: REFLECTION LOGS & RETRY ARCHIVE
+    // ========================================================
+    function openReflectionStage() {
+      showScreen('reflectionStage');
+      renderReflectionStage();
+    }
+
+    function renderReflectionStage() {
+      // 1. Render retry archive
+      const retryList = document.getElementById('retry-cases-list');
+      const badge = document.getElementById('missed-count-badge');
+      retryList.innerHTML = '';
+
+      if (incorrectCases.length === 0) {
+        badge.textContent = "0 CASES TO REPAIR";
+        badge.className = "text-[10px] bg-emerald-950 text-emerald-300 px-2 py-0.5 rounded border border-emerald-700";
+        retryList.innerHTML = `
+          <div class="p-3 bg-slate-950 rounded-xl border border-emerald-500/30 text-emerald-300">
+            ✨ Flawless diagnostics! No missed questions currently in the repair archive.
+          </div>
+        `;
+      } else {
+        badge.textContent = `${incorrectCases.length} CASES NEED REPAIR`;
+        badge.className = "text-[10px] bg-amber-950 text-amber-300 px-2 py-0.5 rounded border border-amber-700";
+        
+        incorrectCases.forEach((item, idx) => {
+          const div = document.createElement('div');
+          div.className = "p-3 bg-slate-950 rounded-xl border border-amber-500/30 flex items-center justify-between gap-2 flex-wrap";
+          div.innerHTML = `
+            <div>
+              <div class="font-bold text-amber-300">Case #${idx + 1}: ${item.q.topic}</div>
+              <div class="text-[11px] text-slate-300 mt-0.5">${item.q.stem}</div>
+            </div>
+            <button class="px-3 py-1.5 bg-amber-600 hover:bg-amber-500 text-white font-bold text-xs rounded-lg cyber-btn shadow" data-retry-idx="${idx}">
+              🔄 RETRY CASE NOW
+            </button>
+          `;
+          div.querySelector('button').onclick = () => {
+            launchRetrySingleCase(item);
+          };
+          retryList.appendChild(div);
+        });
+      }
+
+      // 2. Render 5 Sector editable reflection logs
+      const logsContainer = document.getElementById('reflection-logs-container');
+      logsContainer.innerHTML = '';
+
+      for (let s = 1; s <= 5; s++) {
+        const log = CREW_LOGS[s];
+        const isUnlocked = s <= unlockedIsland;
+        const div = document.createElement('div');
+        div.className = `p-3 rounded-xl border ${isUnlocked ? 'bg-slate-950 border-cyan-500/30' : 'bg-slate-950/40 border-slate-800 opacity-60'}`;
+        div.innerHTML = `
+          <div class="flex items-center justify-between mb-1">
+            <span class="font-bold text-cyan-300 text-xs font-tech">${log.title}</span>
+            <span class="text-[10px] ${isUnlocked ? 'text-emerald-400' : 'text-slate-500'} font-tech">${isUnlocked ? 'CALIBRATED' : 'LOCKED'}</span>
+          </div>
+          <p class="text-[11px] text-slate-400 mb-2">Prompt: "${log.prompt}"</p>
+          <textarea class="w-full p-2 bg-slate-900 border border-slate-700 rounded-lg text-xs text-slate-200 focus:outline-none focus:border-cyan-400" rows="2" placeholder="${isUnlocked ? 'Write crew discoveries and explanations here...' : 'Unlock this sector to record findings...'}" ${!isUnlocked ? 'disabled' : ''}>${log.text}</textarea>
+          ${isUnlocked ? `<button class="mt-1.5 px-3 py-1 bg-slate-800 hover:bg-slate-700 text-cyan-300 font-tech text-[10px] rounded border border-cyan-600/40 cyber-btn">SAVE ENTRY</button>` : ''}
+        `;
+        if (isUnlocked) {
+          const textarea = div.querySelector('textarea');
+          div.querySelector('button').onclick = () => {
+            log.text = textarea.value;
+            sound.coin();
+            alert(`📝 Saved entry for ${log.title}!`);
+          };
+        }
+        logsContainer.appendChild(div);
+      }
+    }
+
+    function launchRetrySingleCase(item) {
+      sound.init();
+      sound.coin();
+      showScreen('arena');
+      
+      const canvasContainer = document.getElementById('arcade-canvas-container');
+      const mcContainer = document.getElementById('mc-mission-container');
+      const touchControls = document.getElementById('touch-controls');
+      const mazeControls = document.getElementById('maze-action-controls');
+
+      canvasContainer.classList.add('hidden');
+      touchControls.classList.add('hidden');
+      mazeControls.classList.add('hidden');
+      mcContainer.classList.remove('hidden');
+      mcContainer.classList.add('flex');
+
+      document.getElementById('hud-mode-title').textContent = "RETRY CASE DIAGNOSTIC";
+      document.getElementById('hud-diff-badge').textContent = "REPAIR";
+      document.getElementById('hud-mission-goal').textContent = "ANALYZE & MASTER PREVIOUSLY MISSED CASE";
+      setWorkbenchStatus("REPAIRING MISCONCEPTION:", "Re-examine the clue and choose the scientifically accurate answer!");
+
+      renderSpecificRetryQuestion(item);
+    }
+
+    function renderSpecificRetryQuestion(item) {
+      const q = item.q;
+      document.getElementById('mc-question-topic').textContent = `🔍 RETRY: ${q.topic}`;
+      document.getElementById('mc-question-counter').textContent = `REPAIR CASE`;
+      document.getElementById('mc-question-stem').textContent = q.stem;
+      document.getElementById('mc-question-subtext').textContent = "Discuss with your crew and pick the correct option:";
+
+      const feedbackCard = document.getElementById('mc-feedback-card');
+      feedbackCard.classList.add('hidden');
+
+      const optionsList = document.getElementById('mc-options-list');
+      optionsList.innerHTML = '';
+      const letters = ['A', 'B', 'C'];
+
+      q.options.forEach((opt, idx) => {
+        const btn = document.createElement('button');
+        btn.className = "opt-mc-btn w-full p-3 rounded-xl bg-slate-950 border border-slate-700 hover:border-cyan-400 text-slate-200 font-bold text-xs sm:text-sm text-left cyber-btn flex items-center justify-between shadow gap-2.5";
+        btn.innerHTML = `
+          <div class="flex items-center gap-2.5">
+            <span class="w-7 h-7 rounded-lg bg-slate-900 text-cyan-300 font-tech font-bold text-xs flex items-center justify-center flex-shrink-0 border border-slate-700">${letters[idx]}</span>
+            <span class="leading-tight">${opt.text}</span>
+          </div>
+          <span class="text-cyan-400 text-sm font-black flex-shrink-0">➔</span>
+        `;
+        btn.onclick = () => {
+          document.querySelectorAll('.opt-mc-btn').forEach(b => b.disabled = true);
+          if (opt.correct) {
+            sound.win();
+            btn.classList.add('bg-emerald-950/40', 'border-emerald-500');
+            feedbackCard.className = "mt-3 p-3 rounded-xl border border-emerald-500/50 bg-emerald-950/40 text-emerald-200 font-bold text-xs";
+            feedbackTitle.innerHTML = "✅ Case Mastered! Error Repaired!";
+            feedbackDesc.textContent = opt.exp;
+            
+            // Remove from incorrectCases
+            incorrectCases = incorrectCases.filter(c => c.q.id !== q.id);
+            totalScore += 200;
+            updateHUD();
+
+            nextBtn.textContent = "RETURN TO CREW LOG ➔";
+            nextBtn.onclick = () => openReflectionStage();
+          } else {
+            sound.playTone(250, 0.15, 'triangle');
+            btn.classList.add('bg-amber-950/40', 'border-amber-500');
+            feedbackCard.className = "mt-3 p-3 rounded-xl border border-amber-500/50 bg-amber-950/40 text-amber-200 font-bold text-xs";
+            feedbackTitle.innerHTML = "💡 Re-check your logic:";
+            feedbackDesc.innerHTML = `${opt.exp} <br><span class="text-amber-300 font-extrabold mt-1 block font-tech">HINT: ${q.hint}</span>`;
+
+            nextBtn.textContent = "TRY AGAIN ➔";
+            nextBtn.onclick = () => renderSpecificRetryQuestion(item);
+          }
+          feedbackCard.classList.remove('hidden');
+        };
+        optionsList.appendChild(btn);
+      });
+    }
+
+    // ========================================================
+    // ARCADE GAME LOOP & CANVAS CONTROLLER
+    // ========================================================
+    const canvas = document.getElementById('game-canvas');
+    const ctx = canvas.getContext('2d');
+    let animationFrameId = null;
+
+    function resizeCanvas() {
+      const container = document.getElementById('arcade-canvas-container');
+      if (!container) return;
+      const rect = container.getBoundingClientRect();
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      canvas.width = Math.floor(rect.width * dpr);
+      canvas.height = Math.floor(rect.height * dpr);
+    }
+    window.addEventListener('resize', resizeCanvas);
+    window.addEventListener('orientationchange', resizeCanvas);
+
+    function stopCurrentGameLoop() {
+      if (animationFrameId) {
+        cancelAnimationFrame(animationFrameId);
+        animationFrameId = null;
+      }
+    }
+
+    function updateHUD() {
+      document.getElementById('hud-score').textContent = totalScore;
+      document.getElementById('hud-target-count').textContent = `${targetProgress}/${targetGoal}`;
+      document.getElementById('hud-diff-badge').textContent = currentDifficulty;
+      let hearts = '';
+      for (let i = 0; i < lives; i++) hearts += '❤️';
+      document.getElementById('hud-hp').textContent = hearts || '🛡️';
+    }
+
+    function setWorkbenchStatus(label, text) {
+      document.getElementById('workbench-status-label').textContent = label;
+      document.getElementById('workbench-dialogue').textContent = `"${text}"`;
+    }
+
+    function triggerStageVictory(badgeName, rewardMsg, reflectionQ, reflectionDesc) {
+      stopCurrentGameLoop();
+      sound.win();
+      triggerFireworks();
+
+      if (currentIsland >= unlockedIsland) {
+        unlockedIsland = Math.min(5, currentIsland + 1);
+      }
+      updateProgressionUI();
+
+      document.getElementById('stage-clear-title').textContent = "SECTOR CALIBRATION COMPLETE! 🌟";
+      document.getElementById('stage-clear-msg').textContent = rewardMsg;
+      document.getElementById('badge-reward').textContent = `🎖️ Badge: ${badgeName}`;
+      document.getElementById('stage-final-score').textContent = `PTS: ${totalScore} ⭐`;
+      document.getElementById('reflection-prompt').textContent = reflectionQ;
+      document.getElementById('reflection-concept-desc').textContent = reflectionDesc;
+      document.getElementById('team-reflection-input').value = CREW_LOGS[currentIsland].text || "";
+
+      // Quick retry button display
+      const quickRetryBtn = document.getElementById('btn-retry-missed-quick');
+      if (incorrectCases.length > 0) {
+        quickRetryBtn.classList.remove('hidden');
+        quickRetryBtn.onclick = () => openReflectionStage();
+      } else {
+        quickRetryBtn.classList.add('hidden');
+      }
+
+      showScreen('levelClear');
+    }
+
+    document.getElementById('btn-save-reflection').onclick = () => {
+      sound.coin();
+      const txt = document.getElementById('team-reflection-input').value;
+      CREW_LOGS[currentIsland].text = txt;
+      alert("📝 Crew telemetry log saved! Logbook updated.");
+    };
+
+    // ========================================================
+    // START SPECIFIC ISLAND MODE (DISPATCHER)
+    // ========================================================
+    function startIslandGame(islandId) {
+      sound.init();
+      stopCurrentGameLoop();
+      showScreen('arena');
+      lives = 3;
+      targetProgress = 0;
+      isGameOver = false;
+
+      const canvasContainer = document.getElementById('arcade-canvas-container');
+      const mcContainer = document.getElementById('mc-mission-container');
+      const touchControls = document.getElementById('touch-controls');
+      const mazeControls = document.getElementById('maze-action-controls');
+
+      touchControls.classList.add('hidden');
+      mazeControls.classList.add('hidden');
+
+      if (islandId === 2) {
+        canvasContainer.classList.add('hidden');
+        mcContainer.classList.remove('hidden');
+        mcContainer.classList.add('flex');
+
+        initMCSession(islandId);
+      } else {
+        canvasContainer.classList.remove('hidden');
+        mcContainer.classList.add('hidden');
+        mcContainer.classList.remove('flex');
+
+        resizeCanvas();
+
+        if (islandId === 1) {
+          // Difficulty tuning for Slicer
+          const diffTargets = { 'EASY': 5, 'NORMAL': 8, 'HARD': 12 };
+          targetGoal = diffTargets[currentDifficulty];
+          
+          document.getElementById('hud-mode-title').textContent = 'SLICER CALIBRATION';
+          document.getElementById('hud-mission-goal').textContent = `TASK: HARVEST ${targetGoal} SAMPLES`;
+          setWorkbenchStatus("FEATURE CURATOR:", `[Difficulty: ${currentDifficulty}] Slice bananas across varied angles!`);
+          
+          initFruitSlicerGame({
+            targets: [
+              { emoji: '🍌', name: 'Yellow Ripe', points: 100 },
+              { emoji: '🍌🍏', name: 'Green Unripe', points: 150 },
+              { emoji: '🍌📐', name: 'Rotated 90°', points: 120 }
+            ],
+            bombs: ['💣', '⚡'],
+            debriefTitle: "Eagle-Eyed Data Curator 🍌",
+            rewardMsg: "You populated the vision dataset with multi-angle and unripe color samples!",
+            question: "Why did adding green banana pictures enable the classifier to identify novel fruit?",
+            concept: "Neural networks only compute bounds over features present in their training set. Supplying multi-angle samples is Data Augmentation!"
+          });
+        } else if (islandId === 3) {
+          // Difficulty tuning for Platformer
+          const diffBugs = { 'EASY': 4, 'NORMAL': 6, 'HARD': 8 };
+          targetGoal = diffBugs[currentDifficulty];
+
+          document.getElementById('hud-mode-title').textContent = 'HEATMAP DIAGNOSTIC';
+          document.getElementById('hud-mission-goal').textContent = `TASK: ELIMINATE ${targetGoal} BUGS`;
+          touchControls.classList.remove('hidden');
+          touchControls.classList.add('flex');
+          setWorkbenchStatus("ATTRIBUTION RADAR:", `[Difficulty: ${currentDifficulty}] Stomp bugs & hit feature blocks to diagnose background bias!`);
+          initMarioRunnerGame();
+        } else if (islandId === 4) {
+          // SECTOR 4: ROBOT MAZE MODE
+          targetGoal = 3;
+          mazeControls.classList.remove('hidden');
+          mazeControls.classList.add('flex');
+          document.getElementById('hud-mode-title').textContent = 'ROBOT MAZE 🧭';
+          document.getElementById('hud-mission-goal').textContent = 'DRAW PATH ➔ WATCH BONO ➔ REPAIR BUGS';
+          setWorkbenchStatus("ALGORITHM TRAINER:", `[Difficulty: ${currentDifficulty}] Draw step-by-step rules. If Bono hits a wall, repair the route!`);
+          initRobotMazeGame();
+        } else if (islandId === 5) {
+          // Difficulty tuning for Boss Rush
+          const diffBossHp = { 'EASY': 60, 'NORMAL': 100, 'HARD': 140 };
+          targetGoal = diffBossHp[currentDifficulty];
+
+          document.getElementById('hud-mode-title').textContent = 'CORE DEFENSE OVERRIDE';
+          document.getElementById('hud-mission-goal').textContent = 'TASK: DEFLECT SHARDS & OVERRIDE';
+          setWorkbenchStatus("HUMAN-IN-THE-LOOP:", `[Difficulty: ${currentDifficulty}] Swipe the core! In critical domains, human oversight ensures safety guardrails!`);
+          initBossRushGame();
+        }
+      }
+
+      updateHUD();
+    }
+
+    document.getElementById('btn-restart-round').onclick = () => {
+      sound.playTone(300, 0.1);
+      startIslandGame(currentIsland);
+    };
+
+    // ========================================================
+    // ENGINE FOR MULTIPLE CHOICE SESSIONS (ISLAND 2)
+    // ========================================================
+    function initMCSession(islandId) {
+      const sessionData = MC_SESSIONS_DATA[islandId];
+      mcCurrentIdx = 0;
+      mcActiveQuestions = sessionData.questions;
+      targetGoal = mcActiveQuestions.length;
+      targetProgress = 0;
+
+      document.getElementById('hud-mode-title').textContent = sessionData.title;
+      document.getElementById('hud-mission-goal').textContent = `ANALYZE ${targetGoal} CASES`;
+      setWorkbenchStatus("DIAGNOSTIC PROTOCOL:", `[Difficulty: ${currentDifficulty}] Review telemetry hypotheses! Every attempt sharpens our model.`);
+
+      renderCurrentMCQuestion();
+    }
+
+    function renderCurrentMCQuestion() {
+      const q = mcActiveQuestions[mcCurrentIdx];
+      const sessionData = MC_SESSIONS_DATA[currentIsland];
+
+      document.getElementById('mc-question-topic').textContent = `🔍 ${q.topic}`;
+      document.getElementById('mc-question-counter').textContent = `CASE ${mcCurrentIdx + 1} / ${targetGoal}`;
+      document.getElementById('mc-question-stem').textContent = q.stem;
+      document.getElementById('mc-question-subtext').textContent = currentDifficulty === 'EASY' 
+        ? "💡 Easy Mode: 50/50 clue filter active. Evaluate carefully:" 
+        : "Evaluate hypotheses with your team and submit findings:";
+
+      const feedbackCard = document.getElementById('mc-feedback-card');
+      feedbackCard.classList.add('hidden');
+
+      const optionsList = document.getElementById('mc-options-list');
+      optionsList.innerHTML = '';
+      const letters = ['A', 'B', 'C'];
+
+      // If EASY mode, eliminate one incorrect option automatically!
+      let filteredOpts = [...q.options];
+      if (currentDifficulty === 'EASY') {
+        const wrongIdx = filteredOpts.findIndex(o => !o.correct);
+        if (wrongIdx !== -1) {
+          filteredOpts[wrongIdx] = { ...filteredOpts[wrongIdx], eliminated: true };
+        }
+      }
+
+      filteredOpts.forEach((opt, idx) => {
+        if (opt.eliminated) return; // Skip eliminated 50/50 option
+
+        const btn = document.createElement('button');
+        btn.className = "opt-mc-btn w-full p-3 sm:p-3.5 rounded-xl bg-slate-950/80 border border-slate-700/80 hover:border-cyan-400 active:bg-cyan-950/40 text-slate-200 font-bold text-xs sm:text-sm text-left cyber-btn flex items-center justify-between shadow gap-2.5";
+        btn.innerHTML = `
+          <div class="flex items-center gap-2.5">
+            <span class="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-slate-900 text-cyan-300 font-tech font-bold text-xs flex items-center justify-center flex-shrink-0 border border-slate-700">${letters[idx]}</span>
+            <span class="leading-tight">${opt.text}</span>
+          </div>
+          <span class="text-cyan-400 text-sm font-black flex-shrink-0">➔</span>
+        `;
+
+        btn.onclick = () => handleMCSelection(opt, btn, q, sessionData);
+        optionsList.appendChild(btn);
+      });
+    }
+
+    function handleMCSelection(opt, btn, q, sessionData) {
+      const feedbackCard = document.getElementById('mc-feedback-card');
+      const feedbackTitle = document.getElementById('mc-feedback-title');
+      const feedbackDesc = document.getElementById('mc-feedback-desc');
+      const nextBtn = document.getElementById('btn-next-mc-task');
+
+      document.querySelectorAll('.opt-mc-btn').forEach(b => b.disabled = true);
+
+      if (opt.correct) {
+        sound.win();
+        btn.classList.replace('border-slate-700/80', 'border-emerald-500');
+        btn.classList.add('bg-emerald-950/30');
+
+        feedbackCard.className = "mt-3 p-3 rounded-xl border border-emerald-500/50 bg-emerald-950/40 text-emerald-200 font-bold text-xs";
+        feedbackTitle.innerHTML = "✅ Hypothesis Verified! Accurate Analysis.";
+        feedbackDesc.textContent = opt.exp;
+
+        totalScore += (currentDifficulty === 'HARD' ? 300 : (currentDifficulty === 'NORMAL' ? 200 : 150));
+        targetProgress++;
+        updateHUD();
+      } else {
+        sound.playTone(250, 0.15, 'triangle');
+        btn.classList.replace('border-slate-700/80', 'border-amber-500');
+        btn.classList.add('bg-amber-950/30');
+
+        // Log this question as missed for the Retry Archive!
+        if (!incorrectCases.some(c => c.q.id === q.id)) {
+          incorrectCases.push({ q, sessionData });
+        }
+
+        feedbackCard.className = "mt-3 p-3 rounded-xl border border-amber-500/50 bg-amber-950/40 text-amber-200 font-bold text-xs";
+        feedbackTitle.innerHTML = "💡 Model Insight: Misconception Flagged!";
+        feedbackDesc.innerHTML = `${opt.exp} <br><span class="text-amber-300 font-extrabold mt-1 block font-tech">Saved to Retry Archive! HINT: ${q.hint}</span>`;
+
+        totalScore += 75; // effort reward
+        targetProgress++;
+        updateHUD();
+      }
+
+      nextBtn.textContent = mcCurrentIdx + 1 >= targetGoal ? "COMPLETE SECTOR LOG! ➔" : "ADVANCE TO NEXT CASE ➔";
+      nextBtn.onclick = () => {
+        sound.coin();
+        mcCurrentIdx++;
+        rotateTeamRole();
+
+        if (mcCurrentIdx >= targetGoal) {
+          triggerStageVictory(
+            sessionData.badge,
+            sessionData.rewardMsg,
+            sessionData.reflectionQ,
+            sessionData.reflectionDesc
+          );
+        } else {
+          renderCurrentMCQuestion();
+        }
+      };
+
+      feedbackCard.classList.remove('hidden');
+    }
+
+    // ========================================================
+    // ENGINE 1: FRUIT SLICER
+    // ========================================================
+    function initFruitSlicerGame(config) {
+      let items = [];
+      let particles = [];
+      let floatingTexts = [];
+      let bladeTrail = [];
+      let isPointerDown = false;
+      let lastSpawnTime = 0;
+
+      // Difficulty tuning
+      const bombChance = currentDifficulty === 'HARD' ? 0.35 : (currentDifficulty === 'EASY' ? 0.15 : 0.25);
+      const speedMult = currentDifficulty === 'HARD' ? 1.25 : (currentDifficulty === 'EASY' ? 0.85 : 1.0);
+
+      function spawnItem() {
+        const x = 60 + Math.random() * (canvas.width - 120);
+        const y = canvas.height + 25;
+        const vx = (Math.random() - 0.5) * (canvas.width * 0.005) * speedMult;
+        const vy = -(canvas.height * 0.026 + Math.random() * (canvas.height * 0.008)) * speedMult;
+        
+        const isBomb = Math.random() < bombChance;
+        let emoji, type, points, label;
+
+        if (isBomb) {
+          type = 'BOMB';
+          emoji = config.bombs[Math.floor(Math.random() * config.bombs.length)];
+          points = -10;
+          label = "GLITCH PACKET";
+        } else {
+          type = 'TARGET';
+          const targetObj = config.targets[Math.floor(Math.random() * config.targets.length)];
+          emoji = targetObj.emoji;
+          points = targetObj.points;
+          label = targetObj.name;
+        }
+
+        items.push({
+          x, y, vx, vy,
+          radius: Math.min(canvas.width, canvas.height) * 0.085,
+          emoji,
+          type,
+          points,
+          label,
+          rot: 0,
+          rotSpeed: (Math.random() - 0.5) * 0.1,
+          isSliced: false
+        });
+      }
+
+      function getCanvasPos(e) {
+        const rect = canvas.getBoundingClientRect();
+        return {
+          x: (e.clientX - rect.left) * (canvas.width / rect.width),
+          y: (e.clientY - rect.top) * (canvas.height / rect.height)
+        };
+      }
+
+      function onPointerDown(e) {
+        e.preventDefault();
+        isPointerDown = true;
+        try { canvas.setPointerCapture(e.pointerId); } catch (_) {}
+        bladeTrail = [getCanvasPos(e)];
+      }
+
+      function onPointerMove(e) {
+        if (!isPointerDown) return;
+        e.preventDefault();
+        const pos = getCanvasPos(e);
+        bladeTrail.push(pos);
+        if (bladeTrail.length > 7) bladeTrail.shift();
+
+        if (bladeTrail.length >= 2) {
+          const p1 = bladeTrail[bladeTrail.length - 2];
+          const p2 = bladeTrail[bladeTrail.length - 1];
+
+          items.forEach(item => {
+            if (item.isSliced) return;
+            const dist = distToSegment(item, p1, p2);
+            if (dist < item.radius) {
+              sliceItem(item);
+            }
+          });
+        }
+      }
+
+      function onPointerUp(e) {
+        e.preventDefault();
+        isPointerDown = false;
+        try { canvas.releasePointerCapture(e.pointerId); } catch (_) {}
+        bladeTrail = [];
+      }
+
+      canvas.onpointerdown = onPointerDown;
+      canvas.onpointermove = onPointerMove;
+      canvas.onpointerup = onPointerUp;
+      canvas.onpointercancel = onPointerUp;
+
+      function distToSegment(p, v, w) {
+        const l2 = (w.x - v.x) ** 2 + (w.y - v.y) ** 2;
+        if (l2 === 0) return Math.hypot(p.x - v.x, p.y - v.y);
+        let t = ((p.x - v.x) * (w.x - v.x) + (p.y - v.y) * (w.y - v.y)) / l2;
+        t = Math.max(0, Math.min(1, t));
+        return Math.hypot(p.x - (v.x + t * (w.x - v.x)), p.y - (v.y + t * (w.y - v.y)));
+      }
+
+      function sliceItem(item) {
+        item.isSliced = true;
+
+        if (item.type === 'BOMB') {
+          sound.bomb();
+          floatingTexts.push({ x: item.x, y: item.y, text: `🛡️ DEFENSE BLOCKED`, color: '#f59e0b' });
+          totalScore += 20;
+
+          for (let i = 0; i < 12; i++) {
+            particles.push({
+              x: item.x, y: item.y,
+              vx: (Math.random() - 0.5) * 6,
+              vy: (Math.random() - 0.5) * 6,
+              color: '#f97316', size: 4, life: 1
+            });
+          }
+        } else {
+          sound.slice();
+          totalScore += item.points;
+          targetProgress++;
+          updateHUD();
+
+          floatingTexts.push({ x: item.x, y: item.y, text: `+${item.points} SAMPLED`, color: '#00f5ff' });
+
+          for (let i = 0; i < 14; i++) {
+            particles.push({
+              x: item.x, y: item.y,
+              vx: (Math.random() - 0.5) * 7,
+              vy: (Math.random() - 0.5) * 7,
+              color: '#38bdf8',
+              size: 4 + Math.random() * 3, life: 1
+            });
+          }
+
+          if (targetProgress >= targetGoal) {
+            triggerStageVictory(
+              config.debriefTitle,
+              config.rewardMsg,
+              config.question,
+              config.concept
+            );
+          }
+        }
+      }
+
+      function gameLoop(time) {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        ctx.strokeStyle = '#0f2942';
+        ctx.lineWidth = 1;
+        const step = Math.floor(canvas.width / 14);
+        for (let x = 0; x < canvas.width; x += step) {
+          ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, canvas.height); ctx.stroke();
+        }
+        for (let y = 0; y < canvas.height; y += step) {
+          ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(canvas.width, y); ctx.stroke();
+        }
+
+        if (time - lastSpawnTime > (currentDifficulty === 'HARD' ? 650 : 820) && !isGameOver) {
+          spawnItem();
+          lastSpawnTime = time;
+        }
+
+        const fontSize = Math.floor(Math.min(canvas.width, canvas.height) * 0.1);
+        for (let i = items.length - 1; i >= 0; i--) {
+          const item = items[i];
+          item.x += item.vx;
+          item.y += item.vy;
+          item.vy += canvas.height * 0.0006;
+          item.rot += item.rotSpeed;
+
+          ctx.save();
+          ctx.translate(item.x, item.y);
+          ctx.rotate(item.rot);
+          ctx.font = `${fontSize}px sans-serif`;
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillText(item.emoji, 0, 0);
+          ctx.restore();
+
+          ctx.fillStyle = item.type === 'BOMB' ? '#f87171' : '#38bdf8';
+          ctx.font = `bold ${Math.max(10, Math.floor(fontSize * 0.28))}px 'Share Tech Mono', monospace`;
+          ctx.textAlign = 'center';
+          ctx.fillText(item.label, item.x, item.y + fontSize * 0.65);
+
+          if (item.y > canvas.height + 70) items.splice(i, 1);
+        }
+
+        if (bladeTrail.length > 1) {
+          ctx.beginPath();
+          ctx.moveTo(bladeTrail[0].x, bladeTrail[0].y);
+          for (let i = 1; i < bladeTrail.length; i++) ctx.lineTo(bladeTrail[i].x, bladeTrail[i].y);
+          ctx.strokeStyle = '#00f5ff';
+          ctx.lineWidth = Math.max(4, Math.floor(canvas.width * 0.008));
+          ctx.lineCap = 'round';
+          ctx.shadowColor = '#00f5ff';
+          ctx.shadowBlur = 14;
+          ctx.stroke();
+          ctx.shadowBlur = 0;
+        }
+
+        for (let i = particles.length - 1; i >= 0; i--) {
+          const p = particles[i];
+          p.x += p.vx; p.y += p.vy; p.vy += 0.12; p.life -= 0.025;
+          if (p.life <= 0) particles.splice(i, 1);
+          else {
+            ctx.fillStyle = p.color;
+            ctx.globalAlpha = p.life;
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.globalAlpha = 1;
+          }
+        }
+
+        for (let i = floatingTexts.length - 1; i >= 0; i--) {
+          const ft = floatingTexts[i];
+          ft.y -= 1.3;
+          ctx.font = `bold ${Math.max(11, Math.floor(canvas.width * 0.02))}px "Share Tech Mono", monospace`;
+          ctx.fillStyle = ft.color;
+          ctx.textAlign = 'center';
+          ctx.fillText(ft.text, ft.x, ft.y);
+          if (!ft.life) ft.life = 1;
+          ft.life -= 0.025;
+          if (ft.life <= 0) floatingTexts.splice(i, 1);
+        }
+
+        if (!isGameOver) {
+          animationFrameId = requestAnimationFrame(gameLoop);
+        }
+      }
+
+      animationFrameId = requestAnimationFrame(gameLoop);
+    }
+
+    // ========================================================
+    // ENGINE 2: MARIO GLITCH JUMPER
+    // ========================================================
+    function initMarioRunnerGame() {
+      let player = {
+        x: canvas.width * 0.1, y: canvas.height * 0.65,
+        vx: 0, vy: 0,
+        w: canvas.width * 0.05, h: canvas.width * 0.05,
+        isGrounded: false
+      };
+
+      let keys = { left: false, right: false };
+      let enemies = [];
+      let blocks = [];
+      let floatingTexts = [];
+      let cameraX = 0;
+
+      const bugSpeed = currentDifficulty === 'HARD' ? -2.0 : (currentDifficulty === 'EASY' ? -1.0 : -1.4);
+      const blockSpacing = canvas.width * 0.28;
+
+      for (let i = 0; i < 16; i++) {
+        if (i % 3 === 0) {
+          blocks.push({ x: 300 + i * blockSpacing, y: canvas.height * 0.45, w: 46, h: 46, hit: false });
+        }
+        if (i > 1 && i % 2 === 0) {
+          enemies.push({
+            x: 380 + i * blockSpacing, y: canvas.height * 0.73,
+            vx: bugSpeed, w: 38, h: 38,
+            alive: true, emoji: '👾'
+          });
+        }
+      }
+
+      window.onkeydown = (e) => {
+        if (e.code === 'ArrowLeft' || e.code === 'KeyA') keys.left = true;
+        if (e.code === 'ArrowRight' || e.code === 'KeyD') keys.right = true;
+        if (e.code === 'Space' || e.code === 'ArrowUp' || e.code === 'KeyW') {
+          if (player.isGrounded) {
+            player.vy = -12.5;
+            player.isGrounded = false;
+            sound.jump();
+          }
+        }
+      };
+      window.onkeyup = (e) => {
+        if (e.code === 'ArrowLeft' || e.code === 'KeyA') keys.left = false;
+        if (e.code === 'ArrowRight' || e.code === 'KeyD') keys.right = false;
+      };
+
+      const btnLeft = document.getElementById('btn-ctrl-left');
+      const btnRight = document.getElementById('btn-ctrl-right');
+      const btnJump = document.getElementById('btn-ctrl-jump');
+
+      const bindTouch = (elem, pressFn, releaseFn) => {
+        elem.onpointerdown = (e) => { e.preventDefault(); sound.init(); pressFn(); };
+        elem.onpointerup = (e) => { e.preventDefault(); releaseFn(); };
+        elem.onpointercancel = (e) => { e.preventDefault(); releaseFn(); };
+      };
+
+      bindTouch(btnLeft, () => { keys.left = true; }, () => { keys.left = false; });
+      bindTouch(btnRight, () => { keys.right = true; }, () => { keys.right = false; });
+      bindTouch(btnJump, () => {
+        if (player.isGrounded) {
+          player.vy = -12.5;
+          player.isGrounded = false;
+          sound.jump();
+        }
+      }, () => {});
+
+      function platformLoop() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        if (keys.left) player.vx = -4.5;
+        else if (keys.right) player.vx = 4.5;
+        else player.vx = 0;
+
+        player.x += player.vx;
+        player.y += player.vy;
+        player.vy += 0.55;
+
+        const floorY = canvas.height * 0.72;
+        if (player.y >= floorY) {
+          player.y = floorY;
+          player.vy = 0;
+          player.isGrounded = true;
+        }
+
+        cameraX = player.x - canvas.width * 0.25;
+
+        ctx.fillStyle = '#030712';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        ctx.save();
+        ctx.translate(-cameraX, 0);
+
+        ctx.fillStyle = '#0f172a';
+        ctx.fillRect(-200, floorY + player.h, 6000, 50);
+        ctx.strokeStyle = '#0284c7';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(-200, floorY + player.h);
+        ctx.lineTo(5800, floorY + player.h);
+        ctx.stroke();
+
+        blocks.forEach(b => {
+          ctx.fillStyle = b.hit ? '#334155' : '#0369a1';
+          ctx.fillRect(b.x, b.y, b.w, b.h);
+          ctx.strokeStyle = '#38bdf8';
+          ctx.lineWidth = 2;
+          ctx.strokeRect(b.x, b.y, b.w, b.h);
+
+          ctx.font = 'bold 16px "Share Tech Mono", monospace';
+          ctx.fillStyle = '#38bdf8';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillText(b.hit ? 'SCAN' : '?', b.x + b.w / 2, b.y + b.h / 2);
+
+          if (!b.hit && player.vy < 0 &&
+              player.x + player.w > b.x && player.x < b.x + b.w &&
+              player.y <= b.y + b.h && player.y >= b.y) {
+            b.hit = true;
+            player.vy = 2;
+            sound.coin();
+            totalScore += 200;
+            updateHUD();
+            floatingTexts.push({ x: b.x + 20, y: b.y - 10, text: 'HEATMAP TELEMETRY 🐶❄️', color: '#00f5ff' });
+            setWorkbenchStatus("FEATURE RADAR:", "Visual weights showed 90% focus on white snow, not dog features! Solution: Augment with grass photos!");
+          }
+        });
+
+        enemies.forEach(e => {
+          if (!e.alive) return;
+          e.x += e.vx;
+          if (e.x < player.x - 400 || e.x > player.x + 900) return;
+
+          ctx.font = '34px sans-serif';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillText(e.emoji, e.x + e.w / 2, e.y + e.h / 2);
+
+          if (player.x + player.w > e.x && player.x < e.x + e.w &&
+              player.y + player.h >= e.y && player.y + player.h <= e.y + 26 && player.vy > 0) {
+            e.alive = false;
+            player.vy = -9;
+            sound.stomp();
+            totalScore += 150;
+            targetProgress++;
+            updateHUD();
+            floatingTexts.push({ x: e.x, y: e.y - 10, text: 'BIAS NEUTRALIZED +150', color: '#38bdf8' });
+
+            if (targetProgress >= targetGoal) {
+              triggerStageVictory(
+                "Feature Diagnostic Specialist 🍄",
+                "You neutralized dataset glitches and diagnosed background attribution bias!",
+                "Why did the AI look at the white snow background instead of the dog's ears?",
+                "Neural networks isolate the strongest statistical correlation! If all polar bear training samples contain snow, snow is incorrectly weighted as the primary feature."
+              );
+            }
+          } else if (player.x + player.w > e.x + 6 && player.x < e.x + e.w - 6 &&
+                   player.y + player.h > e.y + 10 && player.y < e.y + e.h) {
+            sound.playTone(200, 0.1);
+            player.x += 60;
+            player.vy = -4;
+            totalScore = Math.max(0, totalScore - 10);
+            updateHUD();
+          }
+        });
+
+        ctx.font = '40px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(selectedBuddy.emoji, player.x + player.w / 2, player.y + player.h / 2);
+
+        floatingTexts.forEach(ft => {
+          ctx.font = 'bold 11px "Share Tech Mono", monospace';
+          ctx.fillStyle = ft.color;
+          ctx.fillText(ft.text, ft.x, ft.y);
+          ft.y -= 1;
+        });
+
+        ctx.restore();
+
+        if (!isGameOver) {
+          animationFrameId = requestAnimationFrame(platformLoop);
+        }
+      }
+
+      animationFrameId = requestAnimationFrame(platformLoop);
+    }
+
+    // ========================================================
+    // ENGINE 3: ROBOT MAZE & PATH DEBUGGER (SECTOR 4)
+    // Draw a path. Watch Bono follow it. Repair a route that hits a wall.
+    // Learn: step-by-step rules, testing, and human checking.
+    // ========================================================
+    let mazeState = {
+      level: 1,
+      cols: 8,
+      rows: 5,
+      start: { x: 0, y: 2 },
+      goal: { x: 7, y: 2 },
+      walls: [],
+      dataTokens: [],
+      path: [],
+      isDrawing: false,
+      isRunning: false,
+      bonoPos: { x: 0, y: 2 },
+      stepIndex: 0,
+      stepTimer: 0
+    };
+
+    function initRobotMazeGame() {
+      mazeState.level = 1;
+      targetProgress = 0;
+      targetGoal = 3;
+      loadMazeLevel(1);
+
+      document.getElementById('btn-maze-run').onclick = () => {
+        sound.init();
+        if (mazeState.isRunning) return;
+        if (mazeState.path.length <= 1) {
+          setWorkbenchStatus("TESTER WARNING:", "Draw a path first! Drag from Bono 🤖 towards the Goal 🎯.");
+          return;
+        }
+        runMazeAlgorithm();
+      };
+
+      document.getElementById('btn-maze-clear').onclick = () => {
+        sound.init();
+        sound.playTone(320, 0.08);
+        mazeState.isRunning = false;
+        mazeState.path = [{ x: mazeState.start.x, y: mazeState.start.y }];
+        mazeState.bonoPos = { x: mazeState.start.x, y: mazeState.start.y };
+        setWorkbenchStatus("ROUTE REPAIRED:", "Path reset! Drag with your finger or mouse to draw a new step-by-step route avoiding walls.");
+      };
+
+      canvas.onpointerdown = onMazePointerDown;
+      canvas.onpointermove = onMazePointerMove;
+      canvas.onpointerup = onMazePointerUp;
+      canvas.onpointercancel = onMazePointerUp;
+
+      startMazeLoop();
+    }
+
+    function loadMazeLevel(lvl) {
+      mazeState.level = lvl;
+      mazeState.isRunning = false;
+      mazeState.stepIndex = 0;
+
+      // Adjust maze layout by difficulty
+      if (lvl === 1) {
+        mazeState.cols = 8;
+        mazeState.rows = 5;
+        mazeState.start = { x: 0, y: 2 };
+        mazeState.goal = { x: 7, y: 2 };
+        mazeState.walls = currentDifficulty === 'HARD' 
+          ? [{ x: 3, y: 2 }, { x: 3, y: 1 }, { x: 3, y: 0 }, { x: 5, y: 3 }, { x: 5, y: 4 }]
+          : [{ x: 3, y: 2 }, { x: 3, y: 1 }, { x: 5, y: 3 }];
+        mazeState.dataTokens = [{ x: 3, y: 3 }];
+        mazeState.path = [{ x: 0, y: 2 }];
+        mazeState.bonoPos = { x: 0, y: 2 };
+        setWorkbenchStatus("STEP-BY-STEP RULES:", "Challenge 1/3: Draw a path from Bono 🤖 to the Goal 🎯! Guide Bono around firewall blocks.");
+      } else if (lvl === 2) {
+        mazeState.cols = 8;
+        mazeState.rows = 5;
+        mazeState.start = { x: 0, y: 0 };
+        mazeState.goal = { x: 7, y: 4 };
+        mazeState.walls = currentDifficulty === 'HARD'
+          ? [{ x: 1, y: 2 }, { x: 2, y: 2 }, { x: 3, y: 2 }, { x: 5, y: 1 }, { x: 5, y: 2 }, { x: 5, y: 3 }, { x: 6, y: 3 }]
+          : [{ x: 1, y: 2 }, { x: 2, y: 2 }, { x: 3, y: 2 }, { x: 5, y: 1 }, { x: 5, y: 2 }, { x: 5, y: 3 }];
+        mazeState.dataTokens = [{ x: 3, y: 1 }, { x: 4, y: 4 }];
+        mazeState.path = [{ x: 0, y: 0 }];
+        mazeState.bonoPos = { x: 0, y: 0 };
+        setWorkbenchStatus("TESTING & NAVIGATION:", "Challenge 2/3: More firewalls ahead! Draw steps to collect data packets 💾 and reach the target.");
+      } else if (lvl === 3) {
+        mazeState.cols = 8;
+        mazeState.rows = 5;
+        mazeState.start = { x: 0, y: 2 };
+        mazeState.goal = { x: 7, y: 2 };
+        mazeState.walls = [
+          { x: 4, y: 1 }, { x: 4, y: 2 }, { x: 4, y: 3 }
+        ];
+        mazeState.dataTokens = [{ x: 2, y: 0 }, { x: 6, y: 4 }];
+        // Pre-programmed buggy path that crashes directly into the wall at (4,2)!
+        mazeState.path = [
+          { x: 0, y: 2 }, { x: 1, y: 2 }, { x: 2, y: 2 }, { x: 3, y: 2 }, { x: 4, y: 2 }
+        ];
+        mazeState.bonoPos = { x: 0, y: 2 };
+        setWorkbenchStatus("BUG REPAIR CHALLENGE:", "Challenge 3/3: This pre-set algorithm crashes directly into a firewall! Press RUN to test the bug, then REPAIR the route!");
+      }
+    }
+
+    function getMazeCell(e) {
+      const rect = canvas.getBoundingClientRect();
+      const clientX = (e.clientX - rect.left) * (canvas.width / rect.width);
+      const clientY = (e.clientY - rect.top) * (canvas.height / rect.height);
+      const cellW = canvas.width / mazeState.cols;
+      const cellH = canvas.height / mazeState.rows;
+      return {
+        x: Math.max(0, Math.min(mazeState.cols - 1, Math.floor(clientX / cellW))),
+        y: Math.max(0, Math.min(mazeState.rows - 1, Math.floor(clientY / cellH)))
+      };
+    }
+
+    function onMazePointerDown(e) {
+      e.preventDefault();
+      if (mazeState.isRunning) return;
+      sound.init();
+      const cell = getMazeCell(e);
+
+      mazeState.isDrawing = true;
+      try { canvas.setPointerCapture(e.pointerId); } catch (_) {}
+
+      if (cell.x === mazeState.start.x && cell.y === mazeState.start.y) {
+        mazeState.path = [{ x: cell.x, y: cell.y }];
+        mazeState.bonoPos = { x: cell.x, y: cell.y };
+        sound.step();
+      } else {
+        addMazeCellToPath(cell);
+      }
+    }
+
+    function onMazePointerMove(e) {
+      if (!mazeState.isDrawing || mazeState.isRunning) return;
+      e.preventDefault();
+      const cell = getMazeCell(e);
+      addMazeCellToPath(cell);
+    }
+
+    function onMazePointerUp(e) {
+      mazeState.isDrawing = false;
+      try { canvas.releasePointerCapture(e.pointerId); } catch (_) {}
+    }
+
+    function addMazeCellToPath(cell) {
+      if (mazeState.path.length === 0) {
+        if (cell.x === mazeState.start.x && cell.y === mazeState.start.y) {
+          mazeState.path.push(cell);
+          sound.step();
+        }
+        return;
+      }
+
+      const last = mazeState.path[mazeState.path.length - 1];
+      if (last.x === cell.x && last.y === cell.y) return;
+
+      const dx = Math.abs(cell.x - last.x);
+      const dy = Math.abs(cell.y - last.y);
+      if (dx + dy === 1) {
+        if (mazeState.path.length > 1) {
+          const prev = mazeState.path[mazeState.path.length - 2];
+          if (prev.x === cell.x && prev.y === cell.y) {
+            mazeState.path.pop();
+            sound.step();
+            return;
+          }
+        }
+        mazeState.path.push(cell);
+        sound.step();
+
+        const isWall = mazeState.walls.some(w => w.x === cell.x && w.y === cell.y);
+        if (isWall) {
+          sound.bump();
+          setWorkbenchStatus("HUMAN CHECK:", "Warning! Your path touches a firewall block. Watch Bono test it, or repair it now!");
+        }
+      }
+    }
+
+    function runMazeAlgorithm() {
+      mazeState.isRunning = true;
+      mazeState.stepIndex = 0;
+      mazeState.bonoPos = { x: mazeState.start.x, y: mazeState.start.y };
+      mazeState.stepTimer = 0;
+      setWorkbenchStatus("EXECUTING ALGORITHM:", "Watch Bono execute the step-by-step rules in sequence...");
+    }
+
+    function startMazeLoop() {
+      let lastTime = 0;
+
+      function loop(time) {
+        if (currentIsland !== 4) return;
+        const dt = time - lastTime;
+        lastTime = time;
+
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        const cols = mazeState.cols;
+        const rows = mazeState.rows;
+        const cellW = canvas.width / cols;
+        const cellH = canvas.height / rows;
+
+        ctx.fillStyle = '#050b14';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        ctx.strokeStyle = '#0e2a47';
+        ctx.lineWidth = 1.5;
+        for (let c = 0; c <= cols; c++) {
+          ctx.beginPath();
+          ctx.moveTo(c * cellW, 0);
+          ctx.lineTo(c * cellW, canvas.height);
+          ctx.stroke();
+        }
+        for (let r = 0; r <= rows; r++) {
+          ctx.beginPath();
+          ctx.moveTo(0, r * cellH);
+          ctx.lineTo(canvas.width, r * cellH);
+          ctx.stroke();
+        }
+
+        mazeState.walls.forEach(w => {
+          ctx.fillStyle = 'rgba(239, 68, 68, 0.25)';
+          ctx.fillRect(w.x * cellW + 2, w.y * cellH + 2, cellW - 4, cellH - 4);
+          ctx.strokeStyle = '#ef4444';
+          ctx.lineWidth = 2;
+          ctx.strokeRect(w.x * cellW + 2, w.y * cellH + 2, cellW - 4, cellH - 4);
+
+          ctx.font = `${Math.floor(cellH * 0.45)}px sans-serif`;
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillText('🧱', (w.x + 0.5) * cellW, (w.y + 0.5) * cellH);
+        });
+
+        mazeState.dataTokens.forEach(t => {
+          ctx.font = `${Math.floor(cellH * 0.4)}px sans-serif`;
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillText('💾', (t.x + 0.5) * cellW, (t.y + 0.5) * cellH);
+        });
+
+        const g = mazeState.goal;
+        ctx.fillStyle = 'rgba(16, 185, 129, 0.25)';
+        ctx.fillRect(g.x * cellW + 2, g.y * cellH + 2, cellW - 4, cellH - 4);
+        ctx.strokeStyle = '#10b981';
+        ctx.lineWidth = 2;
+        ctx.strokeRect(g.x * cellW + 2, g.y * cellH + 2, cellW - 4, cellH - 4);
+        ctx.font = `${Math.floor(cellH * 0.48)}px sans-serif`;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('🎯', (g.x + 0.5) * cellW, (g.y + 0.5) * cellH);
+
+        if (mazeState.path.length > 1) {
+          ctx.beginPath();
+          ctx.moveTo((mazeState.path[0].x + 0.5) * cellW, (mazeState.path[0].y + 0.5) * cellH);
+          for (let i = 1; i < mazeState.path.length; i++) {
+            ctx.lineTo((mazeState.path[i].x + 0.5) * cellW, (mazeState.path[i].y + 0.5) * cellH);
+          }
+          ctx.strokeStyle = '#00f5ff';
+          ctx.lineWidth = Math.max(4, Math.floor(canvas.width * 0.008));
+          ctx.shadowColor = '#00f5ff';
+          ctx.shadowBlur = 12;
+          ctx.stroke();
+          ctx.shadowBlur = 0;
+
+          mazeState.path.forEach((pt, pIdx) => {
+            ctx.fillStyle = pIdx === 0 ? '#38bdf8' : '#22d3ee';
+            ctx.beginPath();
+            ctx.arc((pt.x + 0.5) * cellW, (pt.y + 0.5) * cellH, Math.max(3, cellW * 0.08), 0, Math.PI * 2);
+            ctx.fill();
+          });
+        }
+
+        if (mazeState.isRunning) {
+          mazeState.stepTimer += dt;
+          if (mazeState.stepTimer > (currentDifficulty === 'HARD' ? 220 : 320)) {
+            mazeState.stepTimer = 0;
+            mazeState.stepIndex++;
+
+            if (mazeState.stepIndex < mazeState.path.length) {
+              const nextCell = mazeState.path[mazeState.stepIndex];
+              mazeState.bonoPos = { x: nextCell.x, y: nextCell.y };
+
+              const hitWall = mazeState.walls.some(w => w.x === nextCell.x && w.y === nextCell.y);
+              if (hitWall) {
+                sound.bump();
+                mazeState.isRunning = false;
+                setWorkbenchStatus("WALL HIT (BUG DETECTED):", "Bono crashed into a firewall at step " + mazeState.stepIndex + "! Tap 'REPAIR PATH' to fix the route!");
+                return;
+              }
+
+              const tokenIdx = mazeState.dataTokens.findIndex(t => t.x === nextCell.x && t.y === nextCell.y);
+              if (tokenIdx !== -1) {
+                sound.coin();
+                mazeState.dataTokens.splice(tokenIdx, 1);
+                totalScore += 50;
+                updateHUD();
+              } else {
+                sound.step();
+              }
+
+              if (nextCell.x === mazeState.goal.x && nextCell.y === mazeState.goal.y) {
+                sound.win();
+                mazeState.isRunning = false;
+                totalScore += (currentDifficulty === 'HARD' ? 350 : 250);
+                targetProgress++;
+                updateHUD();
+
+                if (mazeState.level < 3) {
+                  setWorkbenchStatus("ALGORITHM SUCCESS! ⭐", "Bono reached the target safely! Loading next maze challenge...");
+                  setTimeout(() => {
+                    loadMazeLevel(mazeState.level + 1);
+                  }, 1200);
+                } else {
+                  triggerStageVictory(
+                    "Maze Algorithm Architect 🧭",
+                    "You programmed step-by-step paths, tested Bono's movements, and repaired buggy routes that hit walls!",
+                    "Why must robots follow exact step-by-step rules instead of just guessing?",
+                    "Computers execute algorithms in sequential order! When code has a bug (like hitting a wall), human testers must inspect the path, fix the rules, and re-test!"
+                  );
+                }
+              }
+            } else {
+              mazeState.isRunning = false;
+              if (mazeState.bonoPos.x !== mazeState.goal.x || mazeState.bonoPos.y !== mazeState.goal.y) {
+                sound.playTone(280, 0.15);
+                setWorkbenchStatus("INCOMPLETE ROUTE:", "Bono reached the end of the instructions, but not the goal 🎯! Extend your path to finish.");
+              }
+            }
+          }
+        }
+
+        const bonoX = (mazeState.bonoPos.x + 0.5) * cellW;
+        const bonoY = (mazeState.bonoPos.y + 0.5) * cellH;
+        ctx.font = `${Math.floor(cellH * 0.65)}px sans-serif`;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('🤖', bonoX, bonoY);
+
+        animationFrameId = requestAnimationFrame(loop);
+      }
+
+      animationFrameId = requestAnimationFrame(loop);
+    }
+
+    // ========================================================
+    // ENGINE 4: FINAL RESCUE BOSS BATTLE (SECTOR 5)
+    // ========================================================
+    function initBossRushGame() {
+      const bossHpMap = { 'EASY': 60, 'NORMAL': 100, 'HARD': 140 };
+      let bossMaxHp = bossHpMap[currentDifficulty];
+      let bossHp = bossMaxHp;
+      let bossX = canvas.width / 2;
+      let bossY = canvas.height * 0.28;
+      let bossDirection = 1;
+      let missiles = [];
+      let bladeTrail = [];
+      let isPointerDown = false;
+      let lastMissile = 0;
+
+      const missileRate = currentDifficulty === 'HARD' ? 380 : (currentDifficulty === 'EASY' ? 620 : 480);
+
+      function spawnBossMissile() {
+        missiles.push({
+          x: bossX + (Math.random() - 0.5) * (canvas.width * 0.12),
+          y: bossY + 30,
+          vx: (Math.random() - 0.5) * (currentDifficulty === 'HARD' ? 6 : 4.5),
+          vy: 3 + Math.random() * (currentDifficulty === 'HARD' ? 3.5 : 2.5),
+          emoji: '⚡'
+        });
+      }
+
+      function getCanvasPos(e) {
+        const rect = canvas.getBoundingClientRect();
+        return {
+          x: (e.clientX - rect.left) * (canvas.width / rect.width),
+          y: (e.clientY - rect.top) * (canvas.height / rect.height)
+        };
+      }
+
+      function handleBossSwipe(pos) {
+        bladeTrail.push(pos);
+        if (bladeTrail.length > 8) bladeTrail.shift();
+
+        if (Math.hypot(pos.x - bossX, pos.y - bossY) < canvas.width * 0.09) {
+          sound.slice();
+          bossHp -= 4;
+          totalScore += 50;
+          targetProgress = Math.max(0, Math.min(bossMaxHp, bossMaxHp - bossHp));
+          updateHUD();
+
+          if (bossHp <= 0) {
+            triggerStageVictory(
+              "Grand AI Architect & Hero 👑",
+              "You fixed training datasets, audited fairness, debugged maze algorithms, and locked in human safety controls!",
+              "Why must a human teacher retain final override authority on automated systems?",
+              "Because neural models produce statistical hallucinations and failure modes. The Human-in-the-Loop provides essential accountability and safety!"
+            );
+          }
+        }
+
+        for (let i = missiles.length - 1; i >= 0; i--) {
+          if (Math.hypot(pos.x - missiles[i].x, pos.y - missiles[i].y) < 32) {
+            sound.stomp();
+            missiles.splice(i, 1);
+            totalScore += 25;
+            updateHUD();
+          }
+        }
+      }
+
+      canvas.onpointerdown = (e) => {
+        e.preventDefault();
+        isPointerDown = true;
+        try { canvas.setPointerCapture(e.pointerId); } catch (_) {}
+        bladeTrail = [getCanvasPos(e)];
+      };
+      canvas.onpointermove = (e) => {
+        if (!isPointerDown) return;
+        e.preventDefault();
+        handleBossSwipe(getCanvasPos(e));
+      };
+      canvas.onpointerup = (e) => {
+        e.preventDefault();
+        isPointerDown = false;
+        try { canvas.releasePointerCapture(e.pointerId); } catch (_) {}
+        bladeTrail = [];
+      };
+      canvas.onpointercancel = canvas.onpointerup;
+
+      function bossLoop(time) {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        ctx.fillStyle = '#030712';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        ctx.strokeStyle = '#1e293b';
+        ctx.lineWidth = 1;
+        for (let x = 0; x < canvas.width; x += 40) {
+          ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, canvas.height); ctx.stroke();
+        }
+        for (let y = 0; y < canvas.height; y += 40) {
+          ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(canvas.width, y); ctx.stroke();
+        }
+
+        bossX += (currentDifficulty === 'HARD' ? 4.2 : 3.2) * bossDirection;
+        if (bossX > canvas.width * 0.85 || bossX < canvas.width * 0.15) bossDirection *= -1;
+
+        if (time - lastMissile > missileRate) {
+          spawnBossMissile();
+          lastMissile = time;
+        }
+
+        const bossSize = Math.floor(canvas.height * 0.22);
+        ctx.font = `${bossSize}px sans-serif`;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('👾', bossX, bossY);
+
+        const barW = canvas.width * 0.28;
+        ctx.fillStyle = '#1e293b';
+        ctx.fillRect(bossX - barW / 2, bossY - bossSize * 0.65, barW, 10);
+        ctx.fillStyle = '#00f5ff';
+        ctx.fillRect(bossX - barW / 2, bossY - bossSize * 0.65, Math.max(0, (bossHp / bossMaxHp) * barW), 10);
+
+        ctx.font = 'bold 10px "Share Tech Mono", monospace';
+        ctx.fillStyle = '#38bdf8';
+        ctx.fillText(`ANOMALY: ${Math.max(0, bossHp)} / ${bossMaxHp}`, bossX, bossY - bossSize * 0.8);
+
+        for (let i = missiles.length - 1; i >= 0; i--) {
+          const m = missiles[i];
+          m.x += m.vx; m.y += m.vy;
+          ctx.font = '28px sans-serif';
+          ctx.fillText(m.emoji, m.x, m.y);
+
+          if (m.y > canvas.height) {
+            missiles.splice(i, 1);
+            totalScore = Math.max(0, totalScore - 5);
+            updateHUD();
+          }
+        }
+
+        if (bladeTrail.length > 1) {
+          ctx.beginPath();
+          ctx.moveTo(bladeTrail[0].x, bladeTrail[0].y);
+          for (let i = 1; i < bladeTrail.length; i++) ctx.lineTo(bladeTrail[i].x, bladeTrail[i].y);
+          ctx.strokeStyle = '#00f5ff';
+          ctx.lineWidth = 6;
+          ctx.shadowColor = '#00f5ff';
+          ctx.shadowBlur = 12;
+          ctx.stroke();
+          ctx.shadowBlur = 0;
+        }
+
+        if (!isGameOver) {
+          animationFrameId = requestAnimationFrame(bossLoop);
+        }
+      }
+
+      animationFrameId = requestAnimationFrame(bossLoop);
+    }
+
+    // Font Accessibility Selector
+    (() => {
+      const selector = document.getElementById('font-size-select');
+      const applySize = val => document.documentElement.style.setProperty('--reading-font-size', `${val}%`);
+      selector.addEventListener('change', () => applySize(selector.value));
+    })();
+  </script>
+</body>
+</html>
